@@ -2,9 +2,16 @@ import express from "express";
 import utilisateur from "./routes/Utilisateur.js";
 import information from "./routes/Information.js";
 import activiteDetente from "./routes/ActiviteDetente.js";
+import swaggerUi from "swagger-ui-express";
+import swaggerOutput from "./swagger-output.json";
 
 const app = express();
 const port: number = 3000;
+
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerOutput));
 
 app.use("/utilisateur", utilisateur);
 app.use("/information", information);

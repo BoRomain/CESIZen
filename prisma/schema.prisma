@@ -5,8 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -24,27 +23,42 @@ model Utilisateur {
   status          Boolean
   informations    Information[]
   activiteDetente ActiviteDetente[]
+  favoris         Favori[]
 }
 
 model Information {
   id           Int         @id @default(autoincrement())
-  nom          String
-  prenom       String
-  email        String      @unique
-  motDePasse   String
-  role         String
-  dateCreation DateTime
+  titre        String
+  description  String
+  texte        String
+  image        String
+  categorie    String
   status       Boolean
+  dateCreation DateTime
   author       Utilisateur @relation(fields: [authorId], references: [id])
   authorId     Int
 }
 
 model ActiviteDetente {
   id           Int         @id @default(autoincrement())
-  nom          String
+  titre        String
   description  String
-  dateCreation DateTime
+  duree        Int
+  difficulte   Int
+  image        String
   status       Boolean
+  dateCreation DateTime
   author       Utilisateur @relation(fields: [authorId], references: [id])
   authorId     Int
+  favoris      Favori[]
+}
+
+model Favori {
+  id                Int             @id @default(autoincrement())
+  utilisateur       Utilisateur     @relation(fields: [utilisateurId], references: [id])
+  utilisateurId     Int
+  activiteDetente   ActiviteDetente @relation(fields: [activiteDetenteId], references: [id])
+  activiteDetenteId Int
+
+  @@unique([utilisateurId, activiteDetenteId])
 }
