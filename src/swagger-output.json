@@ -31,6 +31,24 @@
         }
       }
     },
+    "/utilisateur/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/utilisateur/create": {
       "post": {
         "description": "",
@@ -67,24 +85,6 @@
         }
       }
     },
-    "/utilisateur/{id}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/utilisateur/disable/{id}": {
       "post": {
         "description": "",
@@ -114,26 +114,6 @@
             "type": "string"
           }
         ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/information/": {
-      "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/activiteDetente/": {
-      "get": {
-        "description": "",
         "responses": {
           "200": {
             "description": "OK"

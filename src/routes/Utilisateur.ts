@@ -55,7 +55,7 @@ router.post("/disable/:id", async (req, res) => {
       status: false,
     },
   });
-  res.json(user);
+  res.json("User disabled successfully");
 });
 
 router.post("/enable/:id", async (req, res) => {
@@ -68,7 +68,7 @@ router.post("/enable/:id", async (req, res) => {
       status: true,
     },
   });
-  res.json(user);
+  res.json("User enabled successfully");
 });
 
 export default router;
