@@ -14,49 +14,37 @@ datasource db {
 }
 
 model Utilisateur {
-  id          String  @id @default(uuid())
-  nom         String
-  prenom      String
-  email       String  @unique
-  motDePasse  String
-  role        String
-  dateCreation DateTime
-  status      String
-  informations Information[]
-  activitesDetente ActiviteDetente[]
-  favoris Favori[]
+  id              Int               @id @default(autoincrement())
+  nom             String
+  prenom          String
+  email           String            @unique
+  motDePasse      String
+  role            String
+  dateCreation    DateTime
+  status          Boolean
+  informations    Information[]
+  activiteDetente ActiviteDetente[]
 }
 
 model Information {
-  id          String  @id @default(uuid())
-  titre       String
-  description String
-  texte       String
-  image       String
-  categorie   String
+  id           Int         @id @default(autoincrement())
+  nom          String
+  prenom       String
+  email        String      @unique
+  motDePasse   String
+  role         String
   dateCreation DateTime
-  status      String
-  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id])
-  utilisateurId String
+  status       Boolean
+  author       Utilisateur @relation(fields: [authorId], references: [id])
+  authorId     Int
 }
 
 model ActiviteDetente {
-  id          String  @id @default(uuid())
-  titre       String
-  description String
-  duree       String
-  difficulte  String
+  id           Int         @id @default(autoincrement())
+  nom          String
+  description  String
   dateCreation DateTime
-  status      String
-  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id])
-  utilisateurId String
-  favoris Favori[]
-}
-
-model Favori {
-  id          String  @id @default(uuid())
-  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id])
-  utilisateurId String
-  activiteDetente ActiviteDetente @relation(fields: [activiteDetenteId], references: [id])
-  activiteDetenteId String
+  status       Boolean
+  author       Utilisateur @relation(fields: [authorId], references: [id])
+  authorId     Int
 }
