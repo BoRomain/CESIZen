@@ -12,6 +12,16 @@ datasource db {
   provider = "postgresql"
 }
 
+model RefreshToken {
+  id            Int         @id @default(autoincrement())
+  token         String
+  dateCreation  DateTime    @default(now())
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
+  utilisateurId Int
+
+  @@unique([utilisateurId])
+}
+
 model Utilisateur {
   id              Int               @id @default(autoincrement())
   nom             String
@@ -19,11 +29,12 @@ model Utilisateur {
   email           String            @unique
   motDePasse      String
   role            String
-  dateCreation    DateTime
+  dateCreation    DateTime          @default(now())
   status          Boolean
   informations    Information[]
   activiteDetente ActiviteDetente[]
   favoris         Favori[]
+  accessToken     RefreshToken?
 }
 
 model Information {
@@ -34,7 +45,7 @@ model Information {
   image        String
   categorie    String
   status       Boolean
-  dateCreation DateTime
+  dateCreation DateTime    @default(now())
   author       Utilisateur @relation(fields: [authorId], references: [id])
   authorId     Int
 }
@@ -47,7 +58,7 @@ model ActiviteDetente {
   difficulte   Int
   image        String
   status       Boolean
-  dateCreation DateTime
+  dateCreation DateTime    @default(now())
   author       Utilisateur @relation(fields: [authorId], references: [id])
   authorId     Int
   favoris      Favori[]

@@ -1,27 +1,26 @@
-import express from "express";
-import jwt from "jsonwebtoken";
-import "dotenv/config";
+import { Request, Response, NextFunction } from "express";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
-const AuthMiddleware = (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction,
-) => {
-  const SECRET_KEY = process.env["JWT_SECRET"] || "";
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ message: "Accès refusé. Token manquant." });
-  }
-
-  try {
-    const verified = jwt.verify(token, SECRET_KEY);
-    (req as any).user = verified;
+export function authOnly(req: any, res: Response, next: NextFunction) {
+  if (req.token) {
+    jwt.verify(req.token, process.env["ACCESS_SECRET"] || "");
     next();
-  } catch (err) {
-    res.status(403).json({ message: "Token invalide ou expiré." });
+  } else {
+    res.status(401).json({ error: "Unauthorized" });
   }
-};
-
-export default AuthMiddleware;
+}
+export function adminOnly(req: any, res: Response, next: NextFunction) {
+  if (req.token) {
+    const payload = jwt.verify(
+      req.token,
+      process.env["ACCESS_SECRET"] || "",
+    ) as JwtPayload;
+    if (payload.role === "admin") {
+      next();
+    } else {
+      res.status(401).json({ error: "Unauthorized" });
+    }
+  } else {
+    res.status(401).json({ error: "Unauthorized" });
+  }
+}
