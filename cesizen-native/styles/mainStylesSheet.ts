@@ -10,20 +10,6 @@ const mainStyles = StyleSheet.create({
     padding: 20,
     fontFamily: "Inter_400Regular",
   },
-  box: {
-    backgroundColor: colors.background_box,
-    padding: 20,
-    borderRadius: 10,
-    boxShadow: "0px 5px 10px rgb(0, 0, 0, 0.1)",
-  },
-  box_cliquable: {
-    backgroundColor: colors.background_box,
-    padding: 20,
-    borderRadius: 10,
-    boxShadow: "0px 5px 10px rgb(0, 0, 0, 0.2)",
-    borderLeftWidth: 5,
-    borderLeftColor: colors.primary,
-  },
   h1: {
     fontSize: 24,
     marginBottom: 20,

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { colors } from "../styles/colors";
 
-interface CustomButtonProps {
+interface Props {
   title: string;
   onPress: () => void;
   variant?: "primary" | "secondary" | "danger";
@@ -19,6 +19,7 @@ interface CustomButtonProps {
   icon?: keyof typeof Ionicons.glyphMap;
   style?: ViewStyle;
   textStyle?: TextStyle;
+  padding?: number;
 }
 
 export default function Button({
@@ -30,7 +31,8 @@ export default function Button({
   icon,
   style,
   textStyle,
-}: CustomButtonProps) {
+  padding = 12,
+}: Props) {
   const getBackgroundColor = () => {
     if (disabled) return colors.lightText;
     switch (variant) {
@@ -52,6 +54,7 @@ export default function Button({
         styles.container,
         { backgroundColor: getBackgroundColor() },
         { opacity: disabled || loading ? 0.6 : 1 },
+        { padding },
         style,
       ]}
     >
@@ -76,9 +79,7 @@ export default function Button({
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",

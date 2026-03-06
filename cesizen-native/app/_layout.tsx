@@ -1,9 +1,8 @@
+import { UserProvider } from "@/contexts/UserProviter";
 import { Inter_400Regular, Inter_700Bold, useFonts } from "@expo-google-fonts/inter";
-import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { colors } from "../styles/colors";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -24,39 +23,11 @@ export default function RootLayout() {
   }
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-      }}
-    >
-      <Tabs.Screen
-        name="informations"
-        options={{
-          title: "Informations",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="information-circle" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="actvities"
-        options={{
-          title: "Actvitées Détentes",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="leaf" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profil",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <UserProvider>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      </Stack>
+    </UserProvider>
   );
 }
