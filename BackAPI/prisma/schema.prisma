@@ -13,11 +13,12 @@ datasource db {
 }
 
 model RefreshToken {
-  id            Int         @id @default(autoincrement())
-  token         String
-  dateCreation  DateTime    @default(now())
-  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
-  utilisateurId Int
+  id             Int         @id @default(autoincrement())
+  token          String
+  dateCreation   DateTime    @default(now())
+  dateExpiration DateTime    @default(dbgenerated("NOW() + interval '7 days'"))
+  utilisateur    Utilisateur @relation(fields: [utilisateurId], references: [id])
+  utilisateurId  Int
 
   @@unique([utilisateurId])
 }
@@ -34,7 +35,7 @@ model Utilisateur {
   informations    Information[]
   activiteDetente ActiviteDetente[]
   favoris         Favori[]
-  accessToken     RefreshToken?
+  refreshToken    RefreshToken?
 }
 
 model Information {

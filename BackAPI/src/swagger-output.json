@@ -62,7 +62,7 @@
                 "email": {
                   "example": "any"
                 },
-                "motDePasse": {
+                "password": {
                   "example": "any"
                 }
               }

@@ -2,11 +2,12 @@ import { Router } from "express";
 import prisma from "../database.js";
 import bcrypt from "bcrypt";
 import "dotenv/config";
-import { generateRefreshToken } from "../JWToken.js";
 import { UtilisateurModel } from "../class/UtilisateurModel.js";
+import jwt from "jsonwebtoken";
 
 const router = Router();
-const secret = process.env["JWT_SECRET"] || "";
+
+const ACCESS_SECRET = process.env["ACCESS_SECRET"] || "";
 
 router.get("/", async (req, res) => {
   const users = await prisma.utilisateur.findMany({
@@ -27,18 +28,34 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { email, motDePasse } = req.body;
+  const { email, password } = req.body;
 
-  const user: UtilisateurModel = await prisma.utilisateur.findUniqueOrThrow({
-    where: {
-      email,
-    },
-  });
-
-  if (await bcrypt.compare(motDePasse, user.motDePasse)) {
-    const refreshToken = await generateRefreshToken(user);
-    res.json(refreshToken);
-  } else {
+  try {
+    const user: UtilisateurModel = await prisma.utilisateur.findUniqueOrThrow({
+      where: {
+        email,
+      },
+    });
+    if (await bcrypt.compare(password, user.motDePasse)) {
+      const newRefreshToken = jwt.sign({ id: user.id, role: user.role }, ACCESS_SECRET, {
+        expiresIn: "7d",
+      });
+      await prisma.utilisateur.update({
+        where: { id: user.id },
+        data: {
+          refreshToken: {
+            upsert: {
+              create: { token: newRefreshToken },
+              update: { token: newRefreshToken },
+            },
+          },
+        },
+      });
+      res.json(newRefreshToken);
+    } else {
+      throw new Error();
+    }
+  } catch (error) {
     res.status(401).json({ error: "Email ou mot de passe incorrect" });
   }
 });
