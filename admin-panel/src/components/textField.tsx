@@ -28,7 +28,6 @@ export default function TextField({
       disabled={disabled}
       size="small"
       placeholder={placeholder}
-      margin="dense"
       slotProps={{
         input: {
           endAdornment: endAdornment ? (

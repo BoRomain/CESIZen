@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import logo2 from "../svg/CESIZen logo2.svg";
 import { useUser } from "../contexts/UserProviter";
+import Cookies from "js-cookie";
+import axios from "../utils/axios";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -26,9 +28,16 @@ const Sidebar = () => {
     { path: "/main/activities", name: "Activités", icon: <Activity size={20} /> },
   ];
 
+  function handleLogout() {
+    axios.post("/utilisateur/logout").then(() => {
+      localStorage.removeItem("accessToken");
+      window.location.reload();
+    });
+  }
+
   return (
     <div
-      className={`flex flex-col overflow-hidden shadow-xl rounded-r-4xl h-screen bg-background_box text-text transition-all duration-300 ${isOpen ? "w-64" : "w-[70px]"}`}
+      className={`flex flex-col overflow-hidden shadow-2xl rounded-r-4xl h-screen bg-background_box text-text transition-all duration-300 ${isOpen ? "w-64" : "w-[70px]"}`}
     >
       <div className="relative flex items-center justify-between p-4 mb-5">
         <img src={logo2} style={{ width: "150px" }} />
@@ -68,6 +77,7 @@ const Sidebar = () => {
         <button
           className={`flex items-center w-fit p-3 mb-5 rounded-xl transition-all duration-200
               text-danger hover:opacity-60`}
+          onClick={handleLogout}
         >
           <div className="min-w-[24px]">
             <LogOut size={20} />

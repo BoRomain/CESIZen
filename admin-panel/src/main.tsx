@@ -10,6 +10,7 @@ import UsersList from "./routes/usersList.tsx";
 import Dashboard from "./routes/Dashboard.tsx";
 import InfosList from "./routes/infosList.tsx";
 import ActivitiesList from "./routes/activitiesList.tsx";
+import CreateUser from "./routes/createUser.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -26,6 +27,7 @@ createRoot(document.getElementById("root")!).render(
           >
             <Route index element={<Dashboard />} />
             <Route path="users" element={<UsersList />} />
+            <Route path="users/add" element={<CreateUser />} />
             <Route path="infos" element={<InfosList />} />
             <Route path="activities" element={<ActivitiesList />} />
           </Route>

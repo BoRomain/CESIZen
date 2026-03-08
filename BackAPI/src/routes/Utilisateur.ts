@@ -11,9 +11,19 @@ const router = Router();
 const ACCESS_SECRET = process.env["ACCESS_SECRET"] || "";
 const REFRESH_SECRET = process.env["REFRESH_SECRET"] || "";
 
-router.get("/", async (req, res) => {
+router.get("/", AdminAuthMiddleware, async (req, res) => {
+  const { nom, prenom, email, role, page, limit } = req.query;
   const users = await prisma.utilisateur.findMany({
+    where: {
+      nom: nom ? { contains: String(nom), mode: "insensitive" } : undefined,
+      prenom: prenom ? { contains: String(prenom), mode: "insensitive" } : undefined,
+      email: email ? { contains: String(email), mode: "insensitive" } : undefined,
+      role: role ? String(role) : undefined,
+    },
+    skip: (Number(page) - 1) * Number(limit),
+    take: Number(limit),
     omit: { motDePasse: true },
+    orderBy: { dateCreation: "desc" },
   });
   res.json(users);
 });
@@ -75,6 +85,30 @@ router.post("/login", async (req, res) => {
     }
   } catch (error) {
     res.status(400).json({ error: "Email ou mot de passe incorrect" });
+  }
+});
+
+router.post("/logout", async (req, res) => {
+  try {
+    const tokenFromCookie = req.cookies.refreshToken;
+
+    if (!tokenFromCookie) {
+      return res.sendStatus(400);
+    }
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    const payload = jwt.verify(tokenFromCookie, REFRESH_SECRET) as jwt.JwtPayload;
+    await prisma.refreshToken.deleteMany({
+      where: { token: tokenFromCookie, utilisateurId: payload.id },
+    });
+    res.sendStatus(200);
+  } catch (err) {
+    res.sendStatus(400);
   }
 });
 

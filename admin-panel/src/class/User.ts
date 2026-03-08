@@ -5,13 +5,17 @@ export default class User {
   nom: string;
   prenom: string;
   email: string;
+  password: string;
   role: string;
+  status: boolean;
 
   constructor() {
     this.id = uuidv4();
     this.nom = "";
     this.prenom = "";
     this.email = "";
+    this.password = "";
     this.role = "";
+    this.status = true;
   }
 }

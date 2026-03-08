@@ -24,9 +24,49 @@
     "/utilisateur/": {
       "get": {
         "description": "",
+        "parameters": [
+          {
+            "name": "nom",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "prenom",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -75,6 +115,16 @@
           "200": {
             "description": "OK"
           },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/utilisateur/logout": {
+      "post": {
+        "description": "",
+        "responses": {
           "400": {
             "description": "Bad Request"
           }
