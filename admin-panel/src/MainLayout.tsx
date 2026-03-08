@@ -1,13 +1,15 @@
-import Box from "./components/box";
+import Sidebar from "./components/sidebar";
 import { useUser } from "./contexts/UserProviter";
+import { Outlet } from "react-router-dom";
 
 export default function MainLayout() {
   const { user } = useUser();
   return (
-    <div className="p-5">
-      <h1>Bonjour {user?.prenom}</h1>
-      <h2>Tableau de bord</h2>
-      <Box></Box>
+    <div className="flex flex-row">
+      <Sidebar />
+      <div className="flex-1 m-5">
+        <Outlet />
+      </div>
     </div>
   );
 }

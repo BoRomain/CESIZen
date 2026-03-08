@@ -1,9 +1,9 @@
 import Box from "../components/box";
 
-export default function UsersList() {
+export default function InfosList() {
   return (
     <div>
-      <h1>Utilisateurs</h1>
+      <h1>Informations</h1>
     </div>
   );
 }

@@ -81,7 +81,7 @@ router.post("/login", async (req, res) => {
 router.post("/refresh", async (req, res) => {
   try {
     const tokenFromCookie = req.cookies.refreshToken;
-    if (!tokenFromCookie) return res.sendStatus(401);
+    if (!tokenFromCookie) return res.sendStatus(403);
 
     await prisma.refreshToken.findUniqueOrThrow({
       where: {
