@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "API",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/BackAPI"
+    },
+    {
+      "name": "BackOffice",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/admin-panel"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Fullstack",
+      "configurations": ["API", "BackOffice"]
+    }
+  ]
+}
