@@ -6,7 +6,7 @@ export default class User {
   prenom: string;
   email: string;
   password: string;
-  role: string;
+  role: "admin" | "user";
   status: boolean;
 
   constructor() {
@@ -15,7 +15,7 @@ export default class User {
     this.prenom = "";
     this.email = "";
     this.password = "";
-    this.role = "";
+    this.role = "user";
     this.status = true;
   }
 }

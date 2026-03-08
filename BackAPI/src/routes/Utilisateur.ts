@@ -156,13 +156,13 @@ router.post("/refresh", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-  const { nom, prenom, email, motDePasse } = req.body;
+  const { nom, prenom, email, password } = req.body;
 
-  if (!nom || !prenom || !email || !motDePasse) {
+  if (!nom || !prenom || !email || !password) {
     return res.status(400).json({ error: "Champs manquants" });
   }
 
-  const hashedPassword = await bcrypt.hash(motDePasse, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const user: UtilisateurModel = await prisma.utilisateur.create({
     data: {
