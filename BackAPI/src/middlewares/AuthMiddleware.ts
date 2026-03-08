@@ -4,51 +4,32 @@ import jwt, { JwtPayload, TokenExpiredError } from "jsonwebtoken";
 const ACCESS_SECRET = process.env["ACCESS_SECRET"] || "";
 const REFRESH_SECRET = process.env["REFRESH_SECRET"] || "";
 
-export async function authWithRefresh(req: any, res: Response, next: NextFunction) {
-  const token = req.token; // On suppose que le token est déjà extrait (via un middleware précédent)
-
-  if (!token) {
-    return res.status(401).json({ error: "No token provided" });
-  }
-
+export async function AuthMiddleware(req: any, res: Response, next: NextFunction) {
   try {
-    // 1. Tenter de vérifier l'Access Token
-    const decoded = jwt.verify(token, ACCESS_SECRET) as JwtPayload;
-    req.user = decoded;
-    return next();
+    const authHeader = req.headers["authorization"];
+    const token = (authHeader && authHeader.split(" ")[1]) || "";
+
+    const payload = jwt.verify(token, ACCESS_SECRET) as jwt.JwtPayload;
+
+    next();
   } catch (error) {
-    // 2. Si l'erreur est une expiration, on tente le Refresh
-    if (error instanceof TokenExpiredError) {
-      const refreshToken = req.cookies?.refreshToken; // Utilisation recommandée des cookies
+    res.sendStatus(401);
+  }
+}
 
-      if (!refreshToken) {
-        return res
-          .status(401)
-          .json({ error: "Access expired and no refresh token found" });
-      }
+export async function AdminAuthMiddleware(req: any, res: Response, next: NextFunction) {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = (authHeader && authHeader.split(" ")[1]) || "";
 
-      try {
-        // 3. Vérifier le Refresh Token
-        const refreshDecoded = jwt.verify(refreshToken, REFRESH_SECRET) as JwtPayload;
+    const payload = jwt.verify(token, ACCESS_SECRET) as jwt.JwtPayload;
 
-        // 4. Générer un nouvel Access Token
-        const newAccessToken = jwt.sign(
-          { id: refreshDecoded.id, role: refreshDecoded.role },
-          ACCESS_SECRET,
-          { expiresIn: "15m" },
-        );
-
-        // 5. Envoyer le nouveau token au client via un header personnalisé
-        res.setHeader("x-new-access-token", newAccessToken);
-
-        // Injecter l'utilisateur dans la requête pour la suite
-        req.user = refreshDecoded;
-        return next();
-      } catch (refreshErr) {
-        return res.status(401).json({ error: "Session expired, please login again" });
-      }
+    if (payload.role === "admin") {
+      next();
+    } else {
+      res.sendStatus(401);
     }
-
-    return res.status(401).json({ error: "Invalid token" });
+  } catch (error) {
+    res.sendStatus(401);
   }
 }

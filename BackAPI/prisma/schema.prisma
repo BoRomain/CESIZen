@@ -14,7 +14,7 @@ datasource db {
 
 model RefreshToken {
   id             Int         @id @default(autoincrement())
-  token          String
+  token          String      @unique
   dateCreation   DateTime    @default(now())
   dateExpiration DateTime    @default(dbgenerated("NOW() + interval '7 days'"))
   utilisateur    Utilisateur @relation(fields: [utilisateurId], references: [id])
