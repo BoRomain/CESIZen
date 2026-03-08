@@ -2,8 +2,8 @@ import Box from "../components/box";
 
 export default function InfosList() {
   return (
-    <div>
+    <Box>
       <h1>Informations</h1>
-    </div>
+    </Box>
   );
 }

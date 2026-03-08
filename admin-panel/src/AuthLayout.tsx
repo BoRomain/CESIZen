@@ -33,11 +33,11 @@ export default function AuthLayout() {
   }
   return (
     <div className="h-screen p-5 flex flex-col items-center justify-center overflow-auto">
-      <img src={logo1} style={{ width: "100px" }} />
-      <img src={logo2} style={{ width: "300px" }} />
-      <Box className="w-xl">
+      <Box className="w-xl flex flex-col items-center">
+        <img src={logo1} style={{ width: "100px" }} />
+        <img src={logo2} style={{ width: "300px" }} />
         <h1>Bienvenue</h1>
-        <div className="flex flex-col my-5">
+        <div className="flex flex-col gap-3 my-5 && w-80">
           <TextField
             text="email"
             value={email}

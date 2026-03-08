@@ -3,6 +3,8 @@
 @theme {
   --color-primary: #3dad1b;
   --color-secondary: #daba03;
+  --color-primary-light: #3dad1b25;
+  --color-secondary-light: #daba0325;
   --color-background_container: #eee;
   --color-background_box: #fff;
   --color-danger: #b00020;
@@ -16,12 +18,19 @@
 }
 
 body {
-  background-color: var(--color-background_container);
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-light) 0%,
+    var(--color-background_container) 60%,
+    var(--color-secondary-light) 100%
+  );
+  min-height: 100vh;
 }
 
 h1 {
   font-size: 48px;
   font-weight: bold;
+  margin-bottom: 2rem;
 }
 
 h2 {

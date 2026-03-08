@@ -30,7 +30,7 @@ export default function CreateUser() {
   };
 
   return (
-    <div>
+    <Box>
       <div className="flex items-center mb-5">
         <button
           onClick={() => navigate("/main/users")}
@@ -40,7 +40,7 @@ export default function CreateUser() {
         </button>
         <h1>Ajouter un utilisateur</h1>
       </div>
-      <Box>
+      <div>
         <div className="grid grid-cols-4 gap-4 mb-6">
           <TextField
             text="Nom"
@@ -82,7 +82,7 @@ export default function CreateUser() {
         <div className="flex justify-end">
           <Button text="Créer" onClick={handleSubmit} loading={loading} icon={Check} />
         </div>
-      </Box>
-    </div>
+      </div>
+    </Box>
   );
 }

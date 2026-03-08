@@ -26,9 +26,9 @@ export default function UsersList() {
   }, [filter]);
 
   return (
-    <div>
+    <Box>
       <h1>Utilisateurs</h1>
-      <Box>
+      <div>
         <Button
           text="Ajouter un utilisateur"
           icon={Plus}
@@ -53,7 +53,7 @@ export default function UsersList() {
           />
         </div>
         <h3>Liste</h3>
-      </Box>
-    </div>
+      </div>
+    </Box>
   );
 }
