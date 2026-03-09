@@ -22,10 +22,18 @@ const Sidebar = () => {
   const { user } = useUser();
 
   const menuItems = [
-    { path: "/main", name: "Tableau de bord", icon: <LayoutDashboard size={20} /> },
+    {
+      path: "/main",
+      name: "Tableau de bord",
+      icon: <LayoutDashboard size={20} />,
+    },
     { path: "/main/users", name: "Utilisateurs", icon: <User size={20} /> },
     { path: "/main/infos", name: "Informations", icon: <BookOpen size={20} /> },
-    { path: "/main/activities", name: "Activités", icon: <Activity size={20} /> },
+    {
+      path: "/main/activities",
+      name: "Activités",
+      icon: <Activity size={20} />,
+    },
   ];
 
   function handleLogout() {
@@ -37,7 +45,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`flex flex-col overflow-hidden shadow-2xl rounded-r-4xl h-screen bg-background_box text-text transition-all duration-300 ${isOpen ? "w-64" : "w-[70px]"}`}
+      className={`flex flex-col overflow-hidden shadow-2xl border-r-6 border-primary rounded-r-4xl h-screen bg-background_box text-text transition-all duration-300 ${isOpen ? "w-64" : "w-[70px]"}`}
     >
       <div className="relative flex items-center justify-between p-4 mb-5">
         <img src={logo2} style={{ width: "150px" }} />
@@ -62,12 +70,14 @@ const Sidebar = () => {
           >
             <div className="min-w-[24px]">{item.icon}</div>
             {isOpen && (
-              <span className="ml-4 font-bold whitespace-nowrap">{item.name}</span>
+              <span className="ml-4 font-bold whitespace-nowrap">
+                {item.name}
+              </span>
             )}
           </NavLink>
         ))}
       </nav>
-      <div>
+      <div className="flex flex-col ml-2">
         <div className={`flex flex-row p-3 ${!isOpen && "hidden"}`}>
           <User size={20} />
           <span className="whitespace-nowrap ml-2">
@@ -83,7 +93,9 @@ const Sidebar = () => {
             <LogOut size={20} />
           </div>
           {isOpen && (
-            <span className="ml-4 font-bold whitespace-nowrap">Se déconnecter</span>
+            <span className="ml-4 font-bold whitespace-nowrap">
+              Se déconnecter
+            </span>
           )}
         </button>
       </div>
