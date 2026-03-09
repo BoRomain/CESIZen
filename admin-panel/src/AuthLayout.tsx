@@ -5,9 +5,7 @@ import TextField from "./components/textField";
 import { LogIn } from "lucide-react";
 import logo1 from "./svg/CESIZen logo1.svg";
 import logo2 from "./svg/CESIZen logo2.svg";
-import { useUser } from "./contexts/UserProviter";
 import axios from "./utils/axios";
-import type User from "./class/User";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthLayout() {
@@ -17,15 +15,11 @@ export default function AuthLayout() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { setUser } = useUser();
-
   function handleLogin() {
     setLoading(true);
     axios
       .post("/admin/login", { email, password })
       .then((res) => {
-        const userData = res.data.user as User;
-        setUser(userData);
         localStorage.setItem("accessToken", res.data.accessToken);
         navigate("/main");
       })
