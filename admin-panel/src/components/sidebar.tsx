@@ -65,7 +65,7 @@ const Sidebar = () => {
             end={item.path === "/main"}
             className={({ isActive }) => `
               flex items-center p-3 rounded-xl transition-all duration-200
-              ${isActive ? "bg-primary text-background_container" : "text-text hover:bg-slate-300"}
+              ${isActive ? "bg-primary-light text-primary" : "text-text hover:bg-slate-300"}
             `}
           >
             <div className="min-w-[24px]">{item.icon}</div>

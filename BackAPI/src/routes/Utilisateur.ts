@@ -201,6 +201,24 @@ router.post("/create", async (req, res) => {
   res.json("Utilisateur créé avec succès");
 });
 
+router.put("/update/:id", AuthMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const { nom, prenom, email, role, status } = req.body;
+  const user = await prisma.utilisateur.update({
+    where: {
+      id: Number(id),
+    },
+    data: {
+      nom,
+      prenom,
+      email,
+      role,
+      status,
+    },
+  });
+  res.json("Utilisateur mis à jour avec succès");
+});
+
 router.post("/disable/:id", AuthMiddleware, async (req, res) => {
   const { id } = req.params;
   const user = await prisma.utilisateur.update({

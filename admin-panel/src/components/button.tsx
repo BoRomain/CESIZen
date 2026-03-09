@@ -6,6 +6,7 @@ interface Props {
   onClick?: () => void;
   disabled?: boolean;
   loading?: boolean;
+  className?: string;
   variant?: "primary" | "secondary" | "danger";
   icon?: React.ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
@@ -17,6 +18,7 @@ export default function Button({
   onClick = () => console.log("clicked"),
   disabled = false,
   loading = false,
+  className = "",
   variant = "primary",
   icon: Icon,
 }: Props) {
@@ -30,7 +32,7 @@ export default function Button({
       onClick={onClick}
       disabled={disabled || loading}
       className={`${disabled || loading ? "bg-gray-400 opacity-70" : palette[variant]} 
-      relative font-bold px-4 py-2 flex items-center rounded-xl text-background_container shadow 
+      relative font-bold px-4 py-2 flex items-center rounded-xl text-background_container shadow ${className} 
       transition ${!(disabled || loading) && "hover:opacity-80"}`}
     >
       {Icon && (
