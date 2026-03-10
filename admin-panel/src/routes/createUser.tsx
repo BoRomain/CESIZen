@@ -21,6 +21,7 @@ export default function CreateUser() {
     axios
       .post("/utilisateur/create", user)
       .then(() => {
+        showMessage("Utilisateur ajouté", "success");
         navigate("/main/users");
       })
       .catch((err) => {

@@ -5,11 +5,18 @@ import UserFilter from "../class/Filters/UserFilter";
 import { debounce } from "@mui/material";
 import TextField from "../components/textField";
 import Button from "../components/button";
-import { Plus } from "lucide-react";
+import { Edit, Plus, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import User from "../class/User";
-import UserCard from "../components/userCard";
 import Loading from "../components/loading";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import ButtonIcon from "../components/buttonIcon";
 
 export default function UsersList() {
   const navigate = useNavigate();
@@ -48,7 +55,7 @@ export default function UsersList() {
     if (
       window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")
     ) {
-      axios.delete(`/utilisateur/${id}`).then(() => {
+      axios.post(`/utilisateur/disable/${id}`).then(() => {
         handleSearchUsers(filter);
       });
     }
@@ -70,17 +77,17 @@ export default function UsersList() {
         <div className="grid grid-cols-4 gap-4 mb-10">
           <TextField
             text="Nom"
-            value={filter.nom}
+            value={filter.nom || ""}
             onChange={(e) => setFilter({ ...filter, nom: e.target.value })}
           />
           <TextField
             text="Prénom"
-            value={filter.prenom}
+            value={filter.prenom || ""}
             onChange={(e) => setFilter({ ...filter, prenom: e.target.value })}
           />
           <TextField
             text="Email"
-            value={filter.email}
+            value={filter.email || ""}
             onChange={(e) => setFilter({ ...filter, email: e.target.value })}
           />
         </div>
@@ -90,16 +97,45 @@ export default function UsersList() {
         {loading ? (
           <Loading />
         ) : (
-          <div className="grid xl:grid-cols-2 lg:grid-cols-1 gap-4 overflow-auto max-h-70">
-            {users.map((user) => (
-              <UserCard
-                key={user.id}
-                user={user}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
+          <TableContainer component={Paper} sx={{ maxHeight: "60vh" }}>
+            <Table size="small" stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Nom</TableCell>
+                  <TableCell>Prénom</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Role</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.nom}</TableCell>
+                    <TableCell>{user.prenom}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>{user.status ? "Actif" : "Inactif"}</TableCell>
+                    <TableCell sx={{ display: "flex" }}>
+                      <ButtonIcon
+                        title="Modifier"
+                        icon={Edit}
+                        onClick={() => handleEdit(user.id)}
+                        color="primary"
+                      />
+                      <ButtonIcon
+                        title="Supprimer"
+                        icon={Trash}
+                        onClick={() => handleDelete(user.id)}
+                        color="secondary"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
       </Box>
     </div>

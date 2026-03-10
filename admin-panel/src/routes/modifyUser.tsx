@@ -9,9 +9,11 @@ import User from "../class/User";
 import Select from "../components/select";
 import Checkbox from "../components/checkbox";
 import Loading from "../components/loading";
+import { useSnackbar } from "../hooks/useSnackbar";
 
 export default function ModifyUser() {
   const navigate = useNavigate();
+  const { showMessage } = useSnackbar();
   const { id } = useParams();
   const [user, setUser] = useState<User>(new User());
   const [loading, setLoading] = useState(true);
@@ -34,6 +36,7 @@ export default function ModifyUser() {
     axios
       .put(`/utilisateur/update/${id}`, userWithoutPassword)
       .then(() => {
+        showMessage("Utilisateur modifié", "success");
         navigate("/main/users");
       })
       .catch((err) => {
