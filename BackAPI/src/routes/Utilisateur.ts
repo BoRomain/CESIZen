@@ -41,12 +41,13 @@ router.get("/get-user", async (req, res) => {
     const token = (authHeader && authHeader.split(" ")[1]) || "";
 
     const payload = jwt.verify(token, ACCESS_SECRET) as jwt.JwtPayload;
-    const user = (await prisma.utilisateur.findUniqueOrThrow({
+    const user = await prisma.utilisateur.findUniqueOrThrow({
       where: {
         id: payload.id,
+        status: true,
       },
       omit: { motDePasse: true },
-    })) as UtilisateurModel;
+    });
     res.json(user);
   } catch (error) {
     res.sendStatus(401);
@@ -60,6 +61,7 @@ router.post("/login", async (req, res) => {
     const user: UtilisateurModel = await prisma.utilisateur.findUniqueOrThrow({
       where: {
         email,
+        status: true,
       },
     });
     if (await bcrypt.compare(password, user.motDePasse)) {
@@ -214,6 +216,7 @@ router.put("/update/:id", AuthMiddleware, async (req, res) => {
       email,
       role,
       status,
+      dateModification: new Date(),
     },
   });
   res.json("Utilisateur mis à jour avec succès");

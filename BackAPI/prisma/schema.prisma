@@ -24,18 +24,19 @@ model RefreshToken {
 }
 
 model Utilisateur {
-  id              Int               @id @default(autoincrement())
-  nom             String
-  prenom          String
-  email           String            @unique
-  motDePasse      String
-  role            String
-  dateCreation    DateTime          @default(now())
-  status          Boolean
-  informations    Information[]
-  activiteDetente ActiviteDetente[]
-  favoris         Favori[]
-  refreshToken    RefreshToken?
+  id               Int               @id @default(autoincrement())
+  nom              String
+  prenom           String
+  email            String            @unique
+  motDePasse       String
+  role             String
+  dateCreation     DateTime          @default(now())
+  dateModification DateTime          @default(now())
+  status           Boolean
+  informations     Information[]
+  activiteDetente  ActiviteDetente[]
+  favoris          Favori[]
+  refreshToken     RefreshToken?
 }
 
 model Information {

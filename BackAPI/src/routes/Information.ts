@@ -49,7 +49,7 @@ router.post("/create", AdminAuthMiddleware, async (req, res) => {
   res.json(information);
 });
 
-router.put("/:id", AdminAuthMiddleware, async (req, res) => {
+router.put("/update/:id", AdminAuthMiddleware, async (req, res) => {
   const { id } = req.params;
   const { titre, description, texte, image, categorie, status, authorId } =
     req.body;

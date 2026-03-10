@@ -18,12 +18,17 @@ router.post("/login", async (req, res) => {
       where: {
         email,
         role: "admin",
+        status: true,
       },
     });
     if (await bcrypt.compare(password, user.motDePasse)) {
-      const newRefreshToken = jwt.sign({ id: user.id, role: user.role }, ACCESS_SECRET, {
-        expiresIn: "7d",
-      });
+      const newRefreshToken = jwt.sign(
+        { id: user.id, role: user.role },
+        ACCESS_SECRET,
+        {
+          expiresIn: "7d",
+        },
+      );
       await prisma.utilisateur.update({
         where: { id: user.id },
         data: {
