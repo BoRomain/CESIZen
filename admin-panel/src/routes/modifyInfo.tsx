@@ -10,9 +10,11 @@ import { useSnackbar } from "../hooks/useSnackbar";
 import Information from "../class/Information";
 import TextArea from "../components/textArea";
 import Loading from "../components/loading";
+import { useUser } from "../contexts/UserProviter";
 
 export default function ModifyInfo() {
   const navigate = useNavigate();
+  const { user } = useUser();
   const { id } = useParams();
   const { showMessage } = useSnackbar();
   const [information, setInformation] = useState<Information>();
@@ -33,7 +35,7 @@ export default function ModifyInfo() {
   const handleSubmit = () => {
     setLoading(true);
     axios
-      .put(`/information/${id}`, information)
+      .put(`/information/update/${id}`, { ...information, authorId: user?.id })
       .then(() => {
         navigate("/main/infos");
       })
@@ -44,7 +46,7 @@ export default function ModifyInfo() {
         setLoading(false);
       });
   };
-  
+
   if (loading || !information) {
     return (
       <Box>
@@ -69,33 +71,45 @@ export default function ModifyInfo() {
           <TextField
             text="Titre"
             value={information.titre}
-            onChange={(e) => setInformation({ ...information, titre: e.target.value })}
+            onChange={(e) =>
+              setInformation({ ...information, titre: e.target.value })
+            }
           />
           <TextField
             text="Catégorie"
             value={information.categorie}
-            onChange={(e) => setInformation({ ...information, categorie: e.target.value })}
+            onChange={(e) =>
+              setInformation({ ...information, categorie: e.target.value })
+            }
           />
           <TextField
             text="Description"
             value={information.description}
-            onChange={(e) => setInformation({ ...information, description: e.target.value })}
+            onChange={(e) =>
+              setInformation({ ...information, description: e.target.value })
+            }
           />
           <TextField
             text="Image (URL)"
             value={information.image}
-            onChange={(e) => setInformation({ ...information, image: e.target.value })}
+            onChange={(e) =>
+              setInformation({ ...information, image: e.target.value })
+            }
           />
           <TextArea
             text="Texte"
             value={information.texte}
-            onChange={(e) => setInformation({ ...information, texte: e.target.value })}
+            onChange={(e) =>
+              setInformation({ ...information, texte: e.target.value })
+            }
             className="col-span-2"
           />
           <Checkbox
             text="Actif"
             checked={information.status}
-            onChange={(e) => setInformation({ ...information, status: e.target.checked })}
+            onChange={(e) =>
+              setInformation({ ...information, status: e.target.checked })
+            }
             className="w-fit"
           />
         </div>

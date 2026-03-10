@@ -47,11 +47,11 @@ export default function UsersList() {
     handleSearchUsers(filter);
   }, [filter]);
 
-  function handleEdit(id: string) {
+  function handleEdit(id: number) {
     navigate(`/main/users/edit/${id}`);
   }
 
-  function handleDelete(id: string) {
+  function handleDelete(id: number) {
     if (
       window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")
     ) {

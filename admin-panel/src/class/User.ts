@@ -1,7 +1,5 @@
-import { v4 as uuidv4 } from "uuid";
-
 export default class User {
-  id: string;
+  id: number;
   nom: string;
   prenom: string;
   email: string;
@@ -10,7 +8,7 @@ export default class User {
   status: boolean;
 
   constructor() {
-    this.id = uuidv4();
+    this.id = 0;
     this.nom = "";
     this.prenom = "";
     this.email = "";

@@ -4,11 +4,10 @@ import bcrypt from "bcrypt";
 import "dotenv/config";
 import { UtilisateurModel } from "../class/UtilisateurModel.js";
 import jwt from "jsonwebtoken";
+import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
+import { comparePassword } from "../utils/password.js";
 
 const router = Router();
-
-const ACCESS_SECRET = process.env["ACCESS_SECRET"] || "";
-const REFRESH_SECRET = process.env["REFRESH_SECRET"] || "";
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -21,14 +20,8 @@ router.post("/login", async (req, res) => {
         status: true,
       },
     });
-    if (await bcrypt.compare(password, user.motDePasse)) {
-      const newRefreshToken = jwt.sign(
-        { id: user.id, role: user.role },
-        ACCESS_SECRET,
-        {
-          expiresIn: "7d",
-        },
-      );
+    if (await comparePassword(password, user.motDePasse)) {
+      const newRefreshToken = generateRefreshToken(user.id, user.role);
       await prisma.utilisateur.update({
         where: { id: user.id },
         data: {
@@ -40,9 +33,7 @@ router.post("/login", async (req, res) => {
           },
         },
       });
-      const newAT = jwt.sign({ id: user.id, role: user.role }, ACCESS_SECRET, {
-        expiresIn: "15m",
-      });
+      const newAT = generateAccessToken(user.id, user.role);
       res.cookie("refreshToken", newRefreshToken, {
         httpOnly: true,
         secure: true,

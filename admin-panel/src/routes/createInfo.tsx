@@ -15,13 +15,13 @@ export default function CreateInfo() {
   const navigate = useNavigate();
   const { showMessage } = useSnackbar();
   const { user } = useUser();
-  const [information, setInformation] = useState(new Information(0, '', '', '', '', '', false, new Date(), user?.id || 0));
+  const [information, setInformation] = useState(new Information());
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = () => {
     setLoading(true);
     axios
-      .post("/information", information)
+      .post("/information/create", { ...information, authorId: user?.id })
       .then(() => {
         navigate("/main/infos");
       })
@@ -49,33 +49,45 @@ export default function CreateInfo() {
           <TextField
             text="Titre"
             value={information.titre}
-            onChange={(e) => setInformation({ ...information, titre: e.target.value })}
+            onChange={(e) =>
+              setInformation({ ...information, titre: e.target.value })
+            }
           />
           <TextField
             text="Catégorie"
             value={information.categorie}
-            onChange={(e) => setInformation({ ...information, categorie: e.target.value })}
+            onChange={(e) =>
+              setInformation({ ...information, categorie: e.target.value })
+            }
           />
           <TextField
             text="Description"
             value={information.description}
-            onChange={(e) => setInformation({ ...information, description: e.target.value })}
+            onChange={(e) =>
+              setInformation({ ...information, description: e.target.value })
+            }
           />
           <TextField
             text="Image (URL)"
             value={information.image}
-            onChange={(e) => setInformation({ ...information, image: e.target.value })}
+            onChange={(e) =>
+              setInformation({ ...information, image: e.target.value })
+            }
           />
           <TextArea
             text="Texte"
             value={information.texte}
-            onChange={(e) => setInformation({ ...information, texte: e.target.value })}
+            onChange={(e) =>
+              setInformation({ ...information, texte: e.target.value })
+            }
             className="col-span-2"
           />
           <Checkbox
             text="Actif"
             checked={information.status}
-            onChange={(e) => setInformation({ ...information, status: e.target.checked })}
+            onChange={(e) =>
+              setInformation({ ...information, status: e.target.checked })
+            }
             className="w-fit"
           />
         </div>

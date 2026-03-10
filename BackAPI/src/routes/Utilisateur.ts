@@ -8,11 +8,15 @@ import {
   AdminAuthMiddleware,
   AuthMiddleware,
 } from "../middlewares/AuthMiddleware.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+} from "../utils/token.js";
+import { comparePassword, hashPassword } from "../utils/password.js";
 
 const router = Router();
-
-const ACCESS_SECRET = process.env["ACCESS_SECRET"] || "";
-const REFRESH_SECRET = process.env["REFRESH_SECRET"] || "";
 
 router.get("/", AdminAuthMiddleware, async (req, res) => {
   const { nom, prenom, email, role, page, limit } = req.query;
@@ -30,7 +34,7 @@ router.get("/", AdminAuthMiddleware, async (req, res) => {
     skip: (Number(page) - 1) * Number(limit),
     take: Number(limit),
     omit: { motDePasse: true },
-    orderBy: { dateCreation: "desc" },
+    orderBy: { dateModification: "desc" },
   });
   res.json(users);
 });
@@ -40,7 +44,7 @@ router.get("/get-user", async (req, res) => {
     const authHeader = req.headers["authorization"];
     const token = (authHeader && authHeader.split(" ")[1]) || "";
 
-    const payload = jwt.verify(token, ACCESS_SECRET) as jwt.JwtPayload;
+    const payload = verifyAccessToken(token);
     const user = await prisma.utilisateur.findUniqueOrThrow({
       where: {
         id: payload.id,
@@ -64,14 +68,8 @@ router.post("/login", async (req, res) => {
         status: true,
       },
     });
-    if (await bcrypt.compare(password, user.motDePasse)) {
-      const newRefreshToken = jwt.sign(
-        { id: user.id, role: user.role },
-        ACCESS_SECRET,
-        {
-          expiresIn: "7d",
-        },
-      );
+    if (await comparePassword(password, user.motDePasse)) {
+      const newRefreshToken = generateRefreshToken(user.id, user.role);
       await prisma.utilisateur.update({
         where: { id: user.id },
         data: {
@@ -83,9 +81,7 @@ router.post("/login", async (req, res) => {
           },
         },
       });
-      const newAT = jwt.sign({ id: user.id, role: user.role }, ACCESS_SECRET, {
-        expiresIn: "15m",
-      });
+      const newAT = generateAccessToken(user.id, user.role);
       res.cookie("refreshToken", newRefreshToken, {
         httpOnly: true,
         secure: true,
@@ -114,10 +110,7 @@ router.post("/logout", async (req, res) => {
       sameSite: "none",
     });
 
-    const payload = jwt.verify(
-      tokenFromCookie,
-      REFRESH_SECRET,
-    ) as jwt.JwtPayload;
+    const payload = verifyRefreshToken(tokenFromCookie);
     await prisma.refreshToken.deleteMany({
       where: { token: tokenFromCookie, utilisateurId: payload.id },
     });
@@ -138,25 +131,10 @@ router.post("/refresh", async (req, res) => {
       },
     });
 
-    const payload = jwt.verify(
-      tokenFromCookie,
-      REFRESH_SECRET,
-    ) as jwt.JwtPayload;
+    const payload = verifyRefreshToken(tokenFromCookie);
 
-    const newRT = jwt.sign(
-      { id: payload.id, role: payload.role },
-      REFRESH_SECRET,
-      {
-        expiresIn: "7d",
-      },
-    );
-    const newAT = jwt.sign(
-      { id: payload.id, role: payload.role },
-      ACCESS_SECRET,
-      {
-        expiresIn: "15m",
-      },
-    );
+    const newRT = generateRefreshToken(payload.id, payload.role);
+    const newAT = generateAccessToken(payload.id, payload.role);
 
     await prisma.utilisateur.update({
       where: { id: payload.id },
@@ -188,7 +166,7 @@ router.post("/create", async (req, res) => {
     return res.status(400).json({ error: "Champs manquants" });
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await hashPassword(password);
 
   const user: UtilisateurModel = await prisma.utilisateur.create({
     data: {

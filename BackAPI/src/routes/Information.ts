@@ -70,7 +70,7 @@ router.put("/update/:id", AdminAuthMiddleware, async (req, res) => {
   res.json(information);
 });
 
-router.delete("/:id", AdminAuthMiddleware, async (req, res) => {
+router.delete("/delete/:id", AdminAuthMiddleware, async (req, res) => {
   const { id } = req.params;
   await prisma.information.delete({
     where: {

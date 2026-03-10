@@ -351,7 +351,59 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/information/create": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "titre": {
+                  "example": "any"
+                },
+                "description": {
+                  "example": "any"
+                },
+                "texte": {
+                  "example": "any"
+                },
+                "image": {
+                  "example": "any"
+                },
+                "categorie": {
+                  "example": "any"
+                },
+                "status": {
+                  "example": "any"
+                },
+                "authorId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/information/update/{id}": {
       "put": {
         "description": "",
         "parameters": [
@@ -405,7 +457,9 @@
             "description": "Unauthorized"
           }
         }
-      },
+      }
+    },
+    "/information/delete/{id}": {
       "delete": {
         "description": "",
         "parameters": [
@@ -419,56 +473,6 @@
             "name": "authorization",
             "in": "header",
             "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/information/create": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "titre": {
-                  "example": "any"
-                },
-                "description": {
-                  "example": "any"
-                },
-                "texte": {
-                  "example": "any"
-                },
-                "image": {
-                  "example": "any"
-                },
-                "categorie": {
-                  "example": "any"
-                },
-                "status": {
-                  "example": "any"
-                },
-                "authorId": {
-                  "example": "any"
-                }
-              }
-            }
           }
         ],
         "responses": {

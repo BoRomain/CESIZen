@@ -56,7 +56,7 @@ export default function InfosList() {
     if (
       window.confirm("Êtes-vous sûr de vouloir supprimer cette information ?")
     ) {
-      axios.delete(`/information/${id}`).then(() => {
+      axios.delete(`/information/delete/${id}`).then(() => {
         handleSearchInformations(filter);
       });
     }
