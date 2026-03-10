@@ -8,9 +8,11 @@ import axios from "../utils/axios";
 import User from "../class/User";
 import Select from "../components/select";
 import Checkbox from "../components/checkbox";
+import { useSnackbar } from "../hooks/useSnackbar";
 
 export default function CreateUser() {
   const navigate = useNavigate();
+  const { showMessage } = useSnackbar();
   const [user, setUser] = useState(new User());
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +24,7 @@ export default function CreateUser() {
         navigate("/main/users");
       })
       .catch((err) => {
-        console.error(err);
+        showMessage("Une erreur est survenue", "error");
       })
       .finally(() => {
         setLoading(false);
@@ -80,7 +82,12 @@ export default function CreateUser() {
           />
         </div>
         <div className="flex justify-end">
-          <Button text="Créer" onClick={handleSubmit} loading={loading} icon={Check} />
+          <Button
+            text="Créer"
+            onClick={handleSubmit}
+            loading={loading}
+            icon={Check}
+          />
         </div>
       </div>
     </Box>

@@ -11,6 +11,7 @@ interface Props {
   icon?: React.ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
   >;
+  type?: "button" | "submit";
 }
 
 export default function Button({
@@ -21,6 +22,7 @@ export default function Button({
   className = "",
   variant = "primary",
   icon: Icon,
+  type = "button",
 }: Props) {
   const palette = {
     primary: "bg-primary",
@@ -34,6 +36,7 @@ export default function Button({
       className={`${disabled || loading ? "bg-gray-400 opacity-70" : palette[variant]} 
       relative font-bold px-4 py-2 flex items-center rounded-xl text-background_container shadow ${className} 
       transition ${!(disabled || loading) && "hover:opacity-80"}`}
+      type={type}
     >
       {Icon && (
         <span className={`flex mr-1 ${loading && "opacity-0"}`}>

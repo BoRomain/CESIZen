@@ -12,31 +12,34 @@ import InfosList from "./routes/infosList.tsx";
 import ActivitiesList from "./routes/activitiesList.tsx";
 import CreateUser from "./routes/createUser.tsx";
 import ModifyUser from "./routes/modifyUser.tsx";
+import { SnackbarProvider } from "./hooks/useSnackbar.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <UserProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/main" replace />} />
-          <Route
-            path="/main"
-            element={
-              <ProtectedRoute>
-                <MainLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="users" element={<UsersList />} />
-            <Route path="users/add" element={<CreateUser />} />
-            <Route path="users/edit/:id" element={<ModifyUser />} />
-            <Route path="infos" element={<InfosList />} />
-            <Route path="activities" element={<ActivitiesList />} />
-          </Route>
-          <Route path="/auth" element={<AuthLayout />} />
-        </Routes>
-      </BrowserRouter>
+      <SnackbarProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/main" replace />} />
+            <Route
+              path="/main"
+              element={
+                <ProtectedRoute>
+                  <MainLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="users" element={<UsersList />} />
+              <Route path="users/add" element={<CreateUser />} />
+              <Route path="users/edit/:id" element={<ModifyUser />} />
+              <Route path="infos" element={<InfosList />} />
+              <Route path="activities" element={<ActivitiesList />} />
+            </Route>
+            <Route path="/auth" element={<AuthLayout />} />
+          </Routes>
+        </BrowserRouter>
+      </SnackbarProvider>
     </UserProvider>
   </StrictMode>,
 );

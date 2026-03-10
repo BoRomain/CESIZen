@@ -31,7 +31,7 @@ export default function UsersList() {
             console.log(err);
           })
           .finally(() => setLoading(false));
-      }, 500),
+      }, 400),
     [],
   );
 
