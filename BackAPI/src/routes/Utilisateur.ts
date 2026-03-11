@@ -4,10 +4,7 @@ import bcrypt from "bcrypt";
 import "dotenv/config";
 import { UtilisateurModel } from "../class/UtilisateurModel.js";
 import jwt from "jsonwebtoken";
-import {
-  AdminAuthMiddleware,
-  AuthMiddleware,
-} from "../middlewares/AuthMiddleware.js";
+import { AdminAuthMiddleware, AuthMiddleware } from "../middlewares/AuthMiddleware.js";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -23,12 +20,8 @@ router.get("/", AdminAuthMiddleware, async (req, res) => {
   const users = await prisma.utilisateur.findMany({
     where: {
       nom: nom ? { contains: String(nom), mode: "insensitive" } : undefined,
-      prenom: prenom
-        ? { contains: String(prenom), mode: "insensitive" }
-        : undefined,
-      email: email
-        ? { contains: String(email), mode: "insensitive" }
-        : undefined,
+      prenom: prenom ? { contains: String(prenom), mode: "insensitive" } : undefined,
+      email: email ? { contains: String(email), mode: "insensitive" } : undefined,
       role: role ? String(role) : undefined,
     },
     skip: (Number(page) - 1) * Number(limit),

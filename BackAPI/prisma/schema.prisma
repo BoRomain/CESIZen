@@ -40,30 +40,32 @@ model Utilisateur {
 }
 
 model Information {
-  id           Int         @id @default(autoincrement())
-  titre        String
-  description  String
-  texte        String
-  image        String
-  categorie    String
-  status       Boolean
-  dateCreation DateTime    @default(now())
-  author       Utilisateur @relation(fields: [authorId], references: [id])
-  authorId     Int
+  id               Int         @id @default(autoincrement())
+  titre            String
+  description      String
+  texte            String
+  image            String
+  categorie        String
+  status           Boolean
+  dateCreation     DateTime    @default(now())
+  dateModification DateTime    @default(now())
+  author           Utilisateur @relation(fields: [authorId], references: [id])
+  authorId         Int
 }
 
 model ActiviteDetente {
-  id           Int         @id @default(autoincrement())
-  titre        String
-  description  String
-  duree        Int
-  difficulte   Int
-  image        String
-  status       Boolean
-  dateCreation DateTime    @default(now())
-  author       Utilisateur @relation(fields: [authorId], references: [id])
-  authorId     Int
-  favoris      Favori[]
+  id               Int         @id @default(autoincrement())
+  titre            String
+  description      String
+  duree            Int
+  difficulte       Int
+  image            String
+  status           Boolean
+  dateCreation     DateTime    @default(now())
+  dateModification DateTime    @default(now())
+  author           Utilisateur @relation(fields: [authorId], references: [id])
+  authorId         Int
+  favoris          Favori[]
 }
 
 model Favori {

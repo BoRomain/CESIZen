@@ -8,16 +8,14 @@ router.get("/", async (req, res) => {
   const { titre, categorie, page, limit } = req.query;
   const informations = await prisma.information.findMany({
     where: {
-      titre: titre
-        ? { contains: String(titre), mode: "insensitive" }
-        : undefined,
+      titre: titre ? { contains: String(titre), mode: "insensitive" } : undefined,
       categorie: categorie
         ? { contains: String(categorie), mode: "insensitive" }
         : undefined,
     },
     skip: (Number(page) - 1) * Number(limit),
     take: Number(limit),
-    orderBy: { dateCreation: "desc" },
+    orderBy: { dateModification: "desc" },
   });
   res.json(informations);
 });
@@ -33,8 +31,7 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/create", AdminAuthMiddleware, async (req, res) => {
-  const { titre, description, texte, image, categorie, status, authorId } =
-    req.body;
+  const { titre, description, texte, image, categorie, status, authorId } = req.body;
   const information = await prisma.information.create({
     data: {
       titre,
@@ -51,8 +48,7 @@ router.post("/create", AdminAuthMiddleware, async (req, res) => {
 
 router.put("/update/:id", AdminAuthMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { titre, description, texte, image, categorie, status, authorId } =
-    req.body;
+  const { titre, description, texte, image, categorie, status, authorId } = req.body;
   const information = await prisma.information.update({
     where: {
       id: Number(id),
