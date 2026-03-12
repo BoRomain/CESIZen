@@ -15,6 +15,7 @@ import ModifyUser from "./routes/modifyUser.tsx";
 import { SnackbarProvider } from "./hooks/useSnackbar.tsx";
 import CreateInfo from "./routes/createInfo.tsx";
 import ModifyInfo from "./routes/modifyInfo.tsx";
+import CreateActivity from "./routes/createActivity.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -39,6 +40,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path="infos/add" element={<CreateInfo />} />
               <Route path="infos/edit/:id" element={<ModifyInfo />} />
               <Route path="activities" element={<ActivitiesList />} />
+              <Route path="activities/add" element={<CreateActivity />} />
             </Route>
             <Route path="/auth" element={<AuthLayout />} />
           </Routes>

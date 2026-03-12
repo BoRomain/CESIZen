@@ -1,13 +1,9 @@
 export default class ActivityFilter {
-  nom?: string;
-  type?: string;
-  lieu?: string;
+  titre?: string;
   status?: boolean;
 
   constructor() {
-    this.nom = undefined;
-    this.type = undefined;
-    this.lieu = undefined;
+    this.titre = undefined;
     this.status = undefined;
   }
 }

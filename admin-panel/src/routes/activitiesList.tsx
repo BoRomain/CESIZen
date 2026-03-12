@@ -74,19 +74,9 @@ export default function ActivitiesList() {
         <h3>Filtres</h3>
         <div className="grid grid-cols-4 gap-4 mb-10">
           <TextField
-            text="Nom"
-            value={filter.nom || ""}
-            onChange={(e) => setFilter({ ...filter, nom: e.target.value })}
-          />
-          <TextField
-            text="Type"
-            value={filter.type || ""}
-            onChange={(e) => setFilter({ ...filter, type: e.target.value })}
-          />
-          <TextField
-            text="Lieu"
-            value={filter.lieu || ""}
-            onChange={(e) => setFilter({ ...filter, lieu: e.target.value })}
+            text="Titre"
+            value={filter.titre || ""}
+            onChange={(e) => setFilter({ ...filter, titre: e.target.value })}
           />
         </div>
       </Box>
@@ -113,7 +103,7 @@ export default function ActivitiesList() {
               <TableBody>
                 {activities.map((activity) => (
                   <TableRow key={activity.id}>
-                    <TableCell>{activity.nom}</TableCell>
+                    <TableCell>{activity.titre}</TableCell>
                     <TableCell>
                       {activity.description.substring(0, 50)}
                       {activity.description.length > 50 ? "..." : ""}

@@ -14,12 +14,19 @@
       "request": "launch",
       "command": "npm run dev",
       "cwd": "${workspaceFolder}/admin-panel"
+    },
+    {
+      "name": "FrontOffice",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start",
+      "cwd": "${workspaceFolder}/cesizen-native"
     }
   ],
   "compounds": [
     {
       "name": "Fullstack",
-      "configurations": ["API", "BackOffice"]
+      "configurations": ["API", "BackOffice", "FrontOffice"]
     }
   ]
 }

@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export default class Activity {
   id: string;
-  nom: string;
+  titre: string;
   description: string;
   dateDebut: Date;
   dateFin: Date;
@@ -14,7 +14,7 @@ export default class Activity {
 
   constructor() {
     this.id = uuidv4();
-    this.nom = "";
+    this.titre = "";
     this.description = "";
     this.dateDebut = new Date();
     this.dateFin = new Date();
