@@ -1,5 +1,5 @@
 import Button from "@/components/Button";
-import { useUser } from "@/contexts/UserProviter";
+import { useUser } from "@/contexts/UserProvider";
 import mainStyles from "@/styles/mainStylesSheet";
 import axios from "@/utils/axios";
 import { useRouter } from "expo-router";
@@ -39,6 +39,11 @@ export default function Login() {
     <View style={mainStyles.container}>
       <View style={mainStyles.formContainer}>
         <Text style={mainStyles.h1}>Login</Text>
+        <Button
+          title="Back"
+          onPress={() => router.replace("/(tabs)/profile")}
+          icon="arrow-back"
+        />
         <TextInput
           style={mainStyles.input}
           placeholder="Email"

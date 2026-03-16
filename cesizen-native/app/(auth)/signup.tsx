@@ -37,6 +37,11 @@ export default function Signup() {
     <View style={mainStyles.container}>
       <View style={mainStyles.formContainer}>
         <Text style={mainStyles.h1}>Signup</Text>
+        <Button
+          title="Back"
+          onPress={() => router.replace("/(tabs)/profile")}
+          icon="arrow-back"
+        />
         <TextInput
           style={mainStyles.input}
           placeholder="Nom"
