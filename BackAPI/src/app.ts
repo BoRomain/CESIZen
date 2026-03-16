@@ -19,7 +19,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
@@ -38,6 +38,7 @@ app.get("/", (req, res) => {
 
 app.use(errorHandler);
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Listening at http://localhost:${port}`);
+  console.log(`Listening at http://192.168.1.16:${port}`);
 });
