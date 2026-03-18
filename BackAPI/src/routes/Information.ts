@@ -8,7 +8,9 @@ router.get("/", async (req, res) => {
   const { titre, categorie, page, limit } = req.query;
   const informations = await prisma.information.findMany({
     where: {
-      titre: titre ? { contains: String(titre), mode: "insensitive" } : undefined,
+      titre: titre
+        ? { contains: String(titre), mode: "insensitive" }
+        : undefined,
       categorie: categorie
         ? { contains: String(categorie), mode: "insensitive" }
         : undefined,
@@ -20,18 +22,21 @@ router.get("/", async (req, res) => {
   res.json(informations);
 });
 
-router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-  const information = await prisma.information.findUnique({
-    where: {
-      id: Number(id),
-    },
-  });
-  res.json(information);
+router.get("/categories", async (req, res) => {
+  const categories = await prisma.information
+    .findMany({
+      select: {
+        categorie: true,
+      },
+      distinct: ["categorie"],
+    })
+    .then((categories) => categories.map((category) => category.categorie));
+  res.json(categories);
 });
 
 router.post("/create", AdminAuthMiddleware, async (req, res) => {
-  const { titre, description, texte, image, categorie, status, authorId } = req.body;
+  const { titre, description, texte, image, categorie, status, authorId } =
+    req.body;
   const information = await prisma.information.create({
     data: {
       titre,
@@ -46,9 +51,20 @@ router.post("/create", AdminAuthMiddleware, async (req, res) => {
   res.json(information);
 });
 
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  const information = await prisma.information.findUnique({
+    where: {
+      id: Number(id),
+    },
+  });
+  res.json(information);
+});
+
 router.put("/update/:id", AdminAuthMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { titre, description, texte, image, categorie, status, authorId } = req.body;
+  const { titre, description, texte, image, categorie, status, authorId } =
+    req.body;
   const information = await prisma.information.update({
     where: {
       id: Number(id),

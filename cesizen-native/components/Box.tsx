@@ -12,7 +12,7 @@ export default function Box({ children }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.background_box,
+    backgroundColor: colors.background,
     padding: 20,
     borderRadius: 10,
     boxShadow: "0px 5px 10px rgb(0, 0, 0, 0.1)",
