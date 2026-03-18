@@ -9,7 +9,11 @@ interface Props {
 
 export default function ClickableBox({ onPress = () => {}, children }: Props) {
   return (
-    <TouchableOpacity style={styles.container} activeOpacity={0.6}>
+    <TouchableOpacity
+      onPress={onPress}
+      style={styles.container}
+      activeOpacity={0.6}
+    >
       {children}
     </TouchableOpacity>
   );
