@@ -61,6 +61,16 @@ router.get("/:id", async (req, res) => {
   res.json(information);
 });
 
+router.get("/categorie/:categorie", async (req, res) => {
+  const { categorie } = req.params;
+  const informations = await prisma.information.findMany({
+    where: {
+      categorie: String(categorie),
+    },
+  });
+  res.json(informations);
+});
+
 router.put("/update/:id", AdminAuthMiddleware, async (req, res) => {
   const { id } = req.params;
   const { titre, description, texte, image, categorie, status, authorId } =

@@ -413,6 +413,24 @@
         }
       }
     },
+    "/information/categorie/{categorie}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "categorie",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/information/update/{id}": {
       "put": {
         "description": "",

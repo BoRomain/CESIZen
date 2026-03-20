@@ -30,7 +30,7 @@ export default function Informations() {
         {categories.map((categorie, index) => (
           <ClickableBox
             key={index}
-            onPress={() => router.push(`/informations/${categorie}`)}
+            onPress={() => router.push(`/informations/categorie/${categorie}`)}
           >
             <Text style={mainStyles.h3}>{categorie}</Text>
           </ClickableBox>
