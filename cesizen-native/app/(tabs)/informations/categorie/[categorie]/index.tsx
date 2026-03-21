@@ -2,9 +2,16 @@ import Box from "@/components/Box";
 import ClickableBox from "@/components/ClickableBox";
 import mainStyles from "@/styles/mainStylesSheet";
 import axios from "@/utils/axios";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { dateFormat } from "@/utils/dateFormat";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  useLocalSearchParams,
+  useRouter,
+  useNavigation,
+  Stack,
+} from "expo-router";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 
 interface Information {
   id: number;
@@ -14,8 +21,8 @@ interface Information {
   image: string;
   categorie: string;
   status: boolean;
-  dateCreation: string;
-  dateModification: string;
+  dateCreation: Date;
+  dateModification: Date;
   authorId: number;
 }
 
@@ -25,6 +32,7 @@ export default function InformationCategories() {
     categorie: string;
   }>();
   const [informations, setInformations] = useState<Information[]>([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (categorie) {
@@ -41,7 +49,12 @@ export default function InformationCategories() {
 
   return (
     <View style={mainStyles.container}>
-      <Text style={mainStyles.h1}>{categorie}</Text>
+      <Stack.Screen
+        options={{
+          title: categorie ? `Catégorie : ${categorie}` : "Détails",
+          headerShown: true,
+        }}
+      />
       <Box>
         {informations.length > 0 ? (
           informations.map((info) => (
@@ -49,12 +62,25 @@ export default function InformationCategories() {
               key={info.id}
               onPress={() => router.push(`/informations/${info.id}`)}
             >
-              <Text style={mainStyles.h3}>{info.titre}</Text>
-              <Text>{info.description?.substring(0, 100)}...</Text>
+              <View>
+                <Text style={mainStyles.h3}>{info.titre}</Text>
+                <Text>{info.description}</Text>
+              </View>
+              {info.image && (
+                <Image
+                  source={{ uri: info.image }}
+                  style={{ height: 50, borderRadius: 5 }}
+                  resizeMode="cover"
+                />
+              )}
+              <Text>
+                <Ionicons name="calendar-outline" />
+                {dateFormat(info.dateCreation)}
+              </Text>
             </ClickableBox>
           ))
         ) : (
-          <Text>No information found for this category.</Text>
+          <Text>Chargement...</Text>
         )}
       </Box>
     </View>

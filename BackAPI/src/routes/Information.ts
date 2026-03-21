@@ -27,6 +27,7 @@ router.get("/categories", async (req, res) => {
     .findMany({
       select: {
         categorie: true,
+        status: true,
       },
       distinct: ["categorie"],
     })
@@ -66,6 +67,7 @@ router.get("/categorie/:categorie", async (req, res) => {
   const informations = await prisma.information.findMany({
     where: {
       categorie: String(categorie),
+      status: true,
     },
   });
   res.json(informations);
