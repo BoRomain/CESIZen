@@ -24,6 +24,7 @@ export default function CreateInfo() {
       .post("/information/create", { ...information, authorId: user?.id })
       .then(() => {
         navigate("/main/infos");
+        showMessage("Opération réussie", "success");
       })
       .catch((err) => {
         showMessage("Une erreur est survenue", "error");

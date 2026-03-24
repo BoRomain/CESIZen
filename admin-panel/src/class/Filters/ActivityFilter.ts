@@ -1,9 +1,9 @@
 export default class ActivityFilter {
   titre?: string;
-  status?: boolean;
+  page: number = 1;
+  limit: number = 10;
 
   constructor() {
     this.titre = undefined;
-    this.status = undefined;
   }
 }

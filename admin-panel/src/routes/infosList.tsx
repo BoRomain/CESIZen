@@ -53,9 +53,7 @@ export default function InfosList() {
   }
 
   function handleDelete(id: string) {
-    if (
-      window.confirm("Êtes-vous sûr de vouloir supprimer cette information ?")
-    ) {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette information ?")) {
       axios.delete(`/information/delete/${id}`).then(() => {
         handleSearchInformations(filter);
       });
@@ -84,9 +82,7 @@ export default function InfosList() {
           <TextField
             text="Catégorie"
             value={filter.categorie || ""}
-            onChange={(e) =>
-              setFilter({ ...filter, categorie: e.target.value })
-            }
+            onChange={(e) => setFilter({ ...filter, categorie: e.target.value })}
           />
         </div>
       </Box>

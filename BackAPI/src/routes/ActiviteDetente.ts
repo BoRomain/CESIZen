@@ -17,27 +17,29 @@ router.get("/", async (req, res) => {
   res.json(activites);
 });
 
-router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-  const activite = await prisma.activiteDetente.findUnique({
-    where: {
-      id: Number(id),
-    },
-  });
-  res.json(activite);
-});
-
 router.post("/create", AdminAuthMiddleware, async (req, res) => {
-  const { titre, description, difficulte, duree, image, status, authorId } = req.body;
+  const { titre, description, difficulte, type, duree, image, status, authorId } =
+    req.body;
   const activite = await prisma.activiteDetente.create({
     data: {
       titre,
       description,
       difficulte,
       duree,
+      type,
       image,
       status,
       authorId,
+    },
+  });
+  res.json(activite);
+});
+
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  const activite = await prisma.activiteDetente.findUnique({
+    where: {
+      id: Number(id),
     },
   });
   res.json(activite);

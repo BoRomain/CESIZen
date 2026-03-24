@@ -39,6 +39,5 @@ app.get("/", (req, res) => {
 app.use(errorHandler);
 
 app.listen(port, "0.0.0.0", () => {
-  console.log(`Listening at http://localhost:${port}`);
-  console.log(`Listening at http://192.168.1.16:${port}`);
+  console.log(`CESIZEN API en écoute sur le port ${port}`);
 });

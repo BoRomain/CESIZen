@@ -30,7 +30,7 @@ export default function ActivitiesList() {
     () =>
       debounce((filter: ActivityFilter) => {
         axios
-          .get("/activite", { params: filter })
+          .get("/activiteDetente", { params: filter })
           .then((res) => {
             setActivities(res.data);
           })
@@ -93,8 +93,7 @@ export default function ActivitiesList() {
                   <TableCell>Description</TableCell>
                   <TableCell>Type</TableCell>
                   <TableCell>Lieu</TableCell>
-                  <TableCell>Date de début</TableCell>
-                  <TableCell>Date de fin</TableCell>
+                  <TableCell>Date</TableCell>
                   <TableCell>Participants</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Actions</TableCell>
@@ -111,10 +110,7 @@ export default function ActivitiesList() {
                     <TableCell>{activity.type}</TableCell>
                     <TableCell>{activity.lieu}</TableCell>
                     <TableCell>
-                      {new Date(activity.dateDebut).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(activity.dateFin).toLocaleDateString()}
+                      {new Date(activity.dateModification).toLocaleDateString()}
                     </TableCell>
                     <TableCell>{activity.nombreParticipant}</TableCell>
                     <TableCell>{activity.status ? "Actif" : "Inactif"}</TableCell>

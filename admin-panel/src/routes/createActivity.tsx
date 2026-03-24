@@ -20,9 +20,10 @@ export default function CreateActivity() {
   const handleSubmit = () => {
     setLoading(true);
     axios
-      .post("/activite/create", { ...activity, authorId: user?.id })
+      .post("/activiteDetente/create", { ...activity, authorId: user?.id })
       .then(() => {
         navigate("/main/activities");
+        showMessage("Opération réussie", "success");
       })
       .catch((err) => {
         showMessage("Une erreur est survenue", "error");
@@ -49,6 +50,37 @@ export default function CreateActivity() {
             text="Titre"
             value={activity.titre}
             onChange={(e) => setActivity({ ...activity, titre: e.target.value })}
+          />
+          <TextField
+            text="Description"
+            value={activity.description}
+            onChange={(e) => setActivity({ ...activity, description: e.target.value })}
+          />
+          <TextField
+            text="Lieu"
+            value={activity.lieu}
+            onChange={(e) => setActivity({ ...activity, lieu: e.target.value })}
+          />
+          <TextField
+            text="Type"
+            value={activity.type}
+            onChange={(e) => setActivity({ ...activity, type: e.target.value })}
+          />
+          <TextField
+            text="Durée (min)"
+            type="number"
+            value={activity.duree.toString()}
+            onChange={(e) =>
+              setActivity({ ...activity, duree: parseInt(e.target.value) })
+            }
+          />
+          <TextField
+            text="Difficulté"
+            type="number"
+            value={activity.difficulte.toString()}
+            onChange={(e) =>
+              setActivity({ ...activity, difficulte: parseInt(e.target.value) })
+            }
           />
           <Checkbox
             text="Actif"

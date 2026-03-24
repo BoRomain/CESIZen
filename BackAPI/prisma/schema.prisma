@@ -44,7 +44,7 @@ model Information {
   titre            String
   description      String
   texte            String
-  image            String
+  image            String?
   categorie        String
   status           Boolean
   dateCreation     DateTime    @default(now())
@@ -59,7 +59,8 @@ model ActiviteDetente {
   description      String
   duree            Int
   difficulte       Int
-  image            String
+  image            String?
+  type             String
   status           Boolean
   dateCreation     DateTime    @default(now())
   dateModification DateTime    @default(now())
