@@ -4,7 +4,7 @@ import mainStyles from "@/styles/mainStylesSheet";
 import axios from "@/utils/axios";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { ScrollView, Text } from "react-native";
 
 export default function Informations() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function Informations() {
   }, []);
 
   return (
-    <View style={mainStyles.container}>
+    <ScrollView contentContainerStyle={mainStyles.container}>
       <Text style={mainStyles.h1}>Informations</Text>
       <Box>
         <Text style={mainStyles.h2}>Catégories</Text>
@@ -36,6 +36,6 @@ export default function Informations() {
           </ClickableBox>
         ))}
       </Box>
-    </View>
+    </ScrollView>
   );
 }

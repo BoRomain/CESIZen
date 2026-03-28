@@ -42,7 +42,7 @@ export default function RootLayout() {
       <Tabs.Screen
         name="actvities"
         options={{
-          title: "Actvitées Détentes",
+          title: "Activités Détente",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="leaf" size={size} color={color} />
           ),

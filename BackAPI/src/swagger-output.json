@@ -564,6 +564,9 @@
                 "difficulte": {
                   "example": "any"
                 },
+                "type": {
+                  "example": "any"
+                },
                 "duree": {
                   "example": "any"
                 },
