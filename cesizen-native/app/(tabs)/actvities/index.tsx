@@ -4,9 +4,11 @@ import { dateFormat } from "@/utils/dateFormat";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import ClickableBox from "@/components/ClickableBox";
 import Box from "@/components/Box";
+import { useUser } from "@/contexts/UserProvider";
+import { colors } from "@/styles/colors";
 
 interface Activity {
   id: number;
@@ -24,8 +26,10 @@ interface Activity {
 
 export default function Activities() {
   const router = useRouter();
+  const { user } = useUser();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
 
   useEffect(() => {
     axios
@@ -46,6 +50,42 @@ export default function Activities() {
       });
   }, []);
 
+  useEffect(() => {
+    if (!user) {
+      setFavoriteIds([]);
+      return;
+    }
+
+    axios
+      .get("/favori/ids")
+      .then((response) => {
+        setFavoriteIds(response.data);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch favorites:", error);
+      });
+  }, [user]);
+
+  async function toggleFavorite(activityId: number) {
+    if (!user) {
+      router.push("/(auth)/login");
+      return;
+    }
+
+    const isFavorite = favoriteIds.includes(activityId);
+    try {
+      if (isFavorite) {
+        await axios.delete(`/favori/${activityId}`);
+        setFavoriteIds((prev) => prev.filter((id) => id !== activityId));
+      } else {
+        await axios.post(`/favori/${activityId}`);
+        setFavoriteIds((prev) => [...prev, activityId]);
+      }
+    } catch (error) {
+      console.error("Failed to toggle favorite:", error);
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={mainStyles.container}>
       <Text style={mainStyles.h1}>Activités Détente</Text>
@@ -58,8 +98,23 @@ export default function Activities() {
               key={activity.id}
               onPress={() => router.push(`/actvities/${activity.id}`)}
             >
-              <View>
+              <View style={styles.row}>
                 <Text style={mainStyles.h3}>{activity.titre}</Text>
+                <Pressable
+                  onPress={(event) => {
+                    event.stopPropagation();
+                    toggleFavorite(activity.id);
+                  }}
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name={favoriteIds.includes(activity.id) ? "bookmark" : "bookmark-outline"}
+                    size={22}
+                    color={colors.primary}
+                  />
+                </Pressable>
+              </View>
+              <View>
                 <Text>{activity.description}</Text>
               </View>
               {activity.image && (
@@ -88,3 +143,12 @@ export default function Activities() {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+});
