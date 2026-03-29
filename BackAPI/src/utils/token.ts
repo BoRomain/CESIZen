@@ -12,9 +12,22 @@ export const generateRefreshToken = (id: number, role: string) => {
 };
 
 export const verifyAccessToken = (token: string) => {
-  return jwt.verify(token, ACCESS_SECRET) as jwt.JwtPayload;
+  try {
+    const secret = process.env.ACCESS_TOKEN_SECRET;
+    if (!secret) throw new Error("Secret missing");
+
+    return jwt.verify(token, secret) as jwt.JwtPayload;
+  } catch (error) {
+    return undefined;
+  }
 };
 
 export const verifyRefreshToken = (token: string) => {
-  return jwt.verify(token, REFRESH_SECRET) as jwt.JwtPayload;
+  try {
+    const secret = process.env.REFRESH_TOKEN_SECRET;
+    if (!secret) throw new Error("Secret missing");
+    return jwt.verify(token, REFRESH_SECRET) as jwt.JwtPayload;
+  } catch (error) {
+    return undefined;
+  }
 };
