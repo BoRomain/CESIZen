@@ -13,10 +13,9 @@ export const generateRefreshToken = (id: number, role: string) => {
 
 export const verifyAccessToken = (token: string) => {
   try {
-    const secret = process.env.ACCESS_TOKEN_SECRET;
-    if (!secret) throw new Error("Secret missing");
+    if (!ACCESS_SECRET) throw new Error("Secret missing");
 
-    return jwt.verify(token, secret) as jwt.JwtPayload;
+    return jwt.verify(token, ACCESS_SECRET) as jwt.JwtPayload;
   } catch (error) {
     return undefined;
   }

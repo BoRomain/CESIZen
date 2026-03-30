@@ -139,7 +139,7 @@ router.post("/refresh", async (req, res) => {
     });
 
     const payload = verifyRefreshToken(tokenFromCookie);
-    if (!payload) return res.sendStatus(401);
+    if (!payload) return res.sendStatus(403);
 
     const newRT = generateRefreshToken(payload.id, payload.role);
     const newAT = generateAccessToken(payload.id, payload.role);
