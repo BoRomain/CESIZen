@@ -22,6 +22,11 @@ router.get("/", async (req, res) => {
   res.json(informations);
 });
 
+router.get("/count", AdminAuthMiddleware, async (req, res) => {
+  const count = await prisma.information.count();
+  res.json({ count });
+});
+
 router.get("/categories", async (req, res) => {
   const categories = await prisma.information
     .findMany({

@@ -17,6 +17,11 @@ router.get("/", async (req, res) => {
   res.json(activites);
 });
 
+router.get("/count", AdminAuthMiddleware, async (req, res) => {
+  const count = await prisma.activiteDetente.count();
+  res.json({ count });
+});
+
 router.post("/create", AdminAuthMiddleware, async (req, res) => {
   const { titre, description, difficulte, type, duree, image, status, authorId } =
     req.body;
