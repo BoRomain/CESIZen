@@ -4,7 +4,10 @@ import bcrypt from "bcrypt";
 import "dotenv/config";
 import { UtilisateurModel } from "../class/UtilisateurModel.js";
 import jwt from "jsonwebtoken";
-import { AdminAuthMiddleware, AuthMiddleware } from "../middlewares/AuthMiddleware.js";
+import {
+  AdminAuthMiddleware,
+  AuthMiddleware,
+} from "../middlewares/AuthMiddleware.js";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -20,8 +23,12 @@ router.get("/", AdminAuthMiddleware, async (req, res) => {
   const users = await prisma.utilisateur.findMany({
     where: {
       nom: nom ? { contains: String(nom), mode: "insensitive" } : undefined,
-      prenom: prenom ? { contains: String(prenom), mode: "insensitive" } : undefined,
-      email: email ? { contains: String(email), mode: "insensitive" } : undefined,
+      prenom: prenom
+        ? { contains: String(prenom), mode: "insensitive" }
+        : undefined,
+      email: email
+        ? { contains: String(email), mode: "insensitive" }
+        : undefined,
       role: role ? String(role) : undefined,
     },
     skip: (Number(page) - 1) * Number(limit),
@@ -38,6 +45,10 @@ router.get("/get-user", async (req, res) => {
     const token = (authHeader && authHeader.split(" ")[1]) || "";
 
     const payload = verifyAccessToken(token);
+    if (!payload) {
+      return res.sendStatus(401);
+    }
+
     const user = await prisma.utilisateur.findUniqueOrThrow({
       where: {
         id: payload.id,
@@ -104,6 +115,9 @@ router.post("/logout", async (req, res) => {
     });
 
     const payload = verifyRefreshToken(tokenFromCookie);
+    if (!payload) {
+      return res.sendStatus(401);
+    }
     await prisma.refreshToken.deleteMany({
       where: { token: tokenFromCookie, utilisateurId: payload.id },
     });
@@ -125,6 +139,7 @@ router.post("/refresh", async (req, res) => {
     });
 
     const payload = verifyRefreshToken(tokenFromCookie);
+    if (!payload) return res.sendStatus(401);
 
     const newRT = generateRefreshToken(payload.id, payload.role);
     const newAT = generateAccessToken(payload.id, payload.role);
