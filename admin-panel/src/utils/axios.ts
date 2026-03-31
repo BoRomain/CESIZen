@@ -1,4 +1,9 @@
-import axiosClient, { type AxiosInstance, type CreateAxiosDefaults } from "axios";
+import axiosClient, {
+  type AxiosError,
+  type AxiosInstance,
+  type CreateAxiosDefaults,
+  type InternalAxiosRequestConfig,
+} from "axios";
 
 const accessToken = localStorage.getItem("accessToken");
 
@@ -13,6 +18,11 @@ const config: CreateAxiosDefaults = {
 };
 
 const axios: AxiosInstance = axiosClient.create(config);
+let refreshPromise: Promise<string> | null = null;
+
+type RetriableRequest = InternalAxiosRequestConfig & {
+  _retry?: boolean;
+};
 
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
@@ -25,21 +35,31 @@ axios.interceptors.request.use((config) => {
 axios.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const axiosError = error as AxiosError;
+    const originalRequest = axiosError.config as RetriableRequest | undefined;
+    const status = axiosError.response?.status;
+    const isRefreshRequest = originalRequest?.url?.includes("/utilisateur/refresh");
 
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (status === 401 && originalRequest && !originalRequest._retry && !isRefreshRequest) {
       originalRequest._retry = true;
 
       try {
-        const res = await axios.post(
-          config.baseURL + "/utilisateur/refresh",
-          {},
-          { withCredentials: true },
-        );
+        if (!refreshPromise) {
+          refreshPromise = axios
+            .post(config.baseURL + "/utilisateur/refresh", {}, { withCredentials: true })
+            .then((res) => {
+              const { accessToken } = res.data;
+              localStorage.setItem("accessToken", accessToken);
+              return accessToken as string;
+            })
+            .finally(() => {
+              refreshPromise = null;
+            });
+        }
 
-        const { accessToken } = res.data;
-        localStorage.setItem("accessToken", accessToken);
+        const accessToken = await refreshPromise;
 
+        originalRequest.headers = originalRequest.headers ?? {};
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return axios(originalRequest);
       } catch (refreshError) {
