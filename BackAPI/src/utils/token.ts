@@ -23,8 +23,7 @@ export const verifyAccessToken = (token: string) => {
 
 export const verifyRefreshToken = (token: string) => {
   try {
-    const secret = process.env.REFRESH_TOKEN_SECRET;
-    if (!secret) throw new Error("Secret missing");
+    if (!REFRESH_SECRET) throw new Error("Secret missing");
     return jwt.verify(token, REFRESH_SECRET) as jwt.JwtPayload;
   } catch (error) {
     return undefined;

@@ -18,6 +18,7 @@ CREATE TABLE "Utilisateur" (
     "motDePasse" TEXT NOT NULL,
     "role" TEXT NOT NULL,
     "dateCreation" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dateModification" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" BOOLEAN NOT NULL,
 
     CONSTRAINT "Utilisateur_pkey" PRIMARY KEY ("id")
@@ -29,10 +30,11 @@ CREATE TABLE "Information" (
     "titre" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "texte" TEXT NOT NULL,
-    "image" TEXT NOT NULL,
+    "image" TEXT,
     "categorie" TEXT NOT NULL,
     "status" BOOLEAN NOT NULL,
     "dateCreation" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dateModification" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "authorId" INTEGER NOT NULL,
 
     CONSTRAINT "Information_pkey" PRIMARY KEY ("id")
@@ -45,9 +47,11 @@ CREATE TABLE "ActiviteDetente" (
     "description" TEXT NOT NULL,
     "duree" INTEGER NOT NULL,
     "difficulte" INTEGER NOT NULL,
-    "image" TEXT NOT NULL,
+    "image" TEXT,
+    "type" TEXT NOT NULL,
     "status" BOOLEAN NOT NULL,
     "dateCreation" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dateModification" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "authorId" INTEGER NOT NULL,
 
     CONSTRAINT "ActiviteDetente_pkey" PRIMARY KEY ("id")

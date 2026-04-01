@@ -8,7 +8,9 @@ router.get("/", async (req, res) => {
   const { titre, page, limit } = req.query;
   const activites = await prisma.activiteDetente.findMany({
     where: {
-      titre: titre ? { contains: String(titre), mode: "insensitive" } : undefined,
+      titre: titre
+        ? { contains: String(titre), mode: "insensitive" }
+        : undefined,
     },
     skip: (Number(page) - 1) * Number(limit),
     take: Number(limit),
@@ -23,8 +25,16 @@ router.get("/count", AdminAuthMiddleware, async (req, res) => {
 });
 
 router.post("/create", AdminAuthMiddleware, async (req, res) => {
-  const { titre, description, difficulte, type, duree, image, status, authorId } =
-    req.body;
+  const {
+    titre,
+    description,
+    difficulte,
+    type,
+    duree,
+    image,
+    status,
+    authorId,
+  } = req.body;
   const activite = await prisma.activiteDetente.create({
     data: {
       titre,
@@ -52,7 +62,8 @@ router.get("/:id", async (req, res) => {
 
 router.put("/update/:id", AdminAuthMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { titre, description, difficulte, duree, image, status, authorId } = req.body;
+  const { titre, description, difficulte, duree, image, status, authorId } =
+    req.body;
   const activite = await prisma.activiteDetente.update({
     where: {
       id: Number(id),
