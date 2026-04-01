@@ -53,7 +53,7 @@ export default function ActivitiesList() {
 
   function handleDelete(id: string) {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cette activité ?")) {
-      axios.delete(`/activite/delete/${id}`).then(() => {
+      axios.delete(`/activiteDetente/delete/${id}`).then(() => {
         handleSearchActivities(filter);
       });
     }
@@ -113,7 +113,9 @@ export default function ActivitiesList() {
                       {new Date(activity.dateModification).toLocaleDateString()}
                     </TableCell>
                     <TableCell>{activity.nombreParticipant}</TableCell>
-                    <TableCell>{activity.status ? "Actif" : "Inactif"}</TableCell>
+                    <TableCell>
+                      {activity.status ? "Actif" : "Inactif"}
+                    </TableCell>
                     <TableCell>
                       <ButtonIcon
                         title="Modifier"

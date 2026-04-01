@@ -4,11 +4,19 @@ import { dateFormat } from "@/utils/dateFormat";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import ClickableBox from "@/components/ClickableBox";
 import Box from "@/components/Box";
 import { useUser } from "@/contexts/UserProvider";
 import { colors } from "@/styles/colors";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Activity {
   id: number;
@@ -87,59 +95,69 @@ export default function Activities() {
   }
 
   return (
-    <ScrollView contentContainerStyle={mainStyles.container}>
-      <Text style={mainStyles.h1}>Activités Détente</Text>
-      <Box>
-        {isLoading ? (
-          <Text>Chargement...</Text>
-        ) : (
-          activities.map((activity) => (
-            <ClickableBox
-              key={activity.id}
-              onPress={() => router.push(`/actvities/${activity.id}`)}
-            >
-              <View style={styles.row}>
-                <Text style={mainStyles.h3}>{activity.titre}</Text>
-                <Pressable
-                  onPress={(event) => {
-                    event.stopPropagation();
-                    toggleFavorite(activity.id);
-                  }}
-                  hitSlop={8}
+    <ScrollView>
+      <SafeAreaView>
+        <View style={mainStyles.container}>
+          <Text style={mainStyles.h1}>Activités Détente</Text>
+          <Box style={{ display: "flex", gap: 10, width: "100%" }}>
+            {isLoading ? (
+              <Text>Chargement...</Text>
+            ) : (
+              activities.map((activity) => (
+                <ClickableBox
+                  key={activity.id}
+                  onPress={() => router.push(`/actvities/${activity.id}`)}
                 >
-                  <Ionicons
-                    name={favoriteIds.includes(activity.id) ? "bookmark" : "bookmark-outline"}
-                    size={22}
-                    color={colors.primary}
-                  />
-                </Pressable>
-              </View>
-              <View>
-                <Text>{activity.description}</Text>
-              </View>
-              {activity.image && (
-                <Image
-                  source={{ uri: activity.image }}
-                  style={{ height: 120, borderRadius: 5 }}
-                  resizeMode="cover"
-                />
-              )}
-              <Text>
-                <Ionicons name="time-outline" /> {activity.duree} min
-              </Text>
-              <Text>
-                <Ionicons name="fitness-outline" /> Difficulté: {activity.difficulte}/5
-              </Text>
-              <Text>
-                <Ionicons name="pricetag-outline" /> {activity.type}
-              </Text>
-              <Text>
-                <Ionicons name="calendar-outline" /> {dateFormat(activity.dateCreation)}
-              </Text>
-            </ClickableBox>
-          ))
-        )}
-      </Box>
+                  <View style={styles.row}>
+                    <Text style={mainStyles.h3}>{activity.titre}</Text>
+                    <Pressable
+                      onPress={(event) => {
+                        event.stopPropagation();
+                        toggleFavorite(activity.id);
+                      }}
+                      hitSlop={8}
+                    >
+                      <Ionicons
+                        name={
+                          favoriteIds.includes(activity.id)
+                            ? "bookmark"
+                            : "bookmark-outline"
+                        }
+                        size={22}
+                        color={colors.primary}
+                      />
+                    </Pressable>
+                  </View>
+                  <View>
+                    <Text>{activity.description}</Text>
+                  </View>
+                  {activity.image && (
+                    <Image
+                      source={{ uri: activity.image }}
+                      style={{ height: 120, borderRadius: 5 }}
+                      resizeMode="cover"
+                    />
+                  )}
+                  <Text>
+                    <Ionicons name="time-outline" /> {activity.duree} min
+                  </Text>
+                  <Text>
+                    <Ionicons name="fitness-outline" /> Difficulté:{" "}
+                    {activity.difficulte}/5
+                  </Text>
+                  <Text>
+                    <Ionicons name="pricetag-outline" /> {activity.type}
+                  </Text>
+                  <Text>
+                    <Ionicons name="calendar-outline" />{" "}
+                    {dateFormat(activity.dateCreation)}
+                  </Text>
+                </ClickableBox>
+              ))
+            )}
+          </Box>
+        </View>
+      </SafeAreaView>
     </ScrollView>
   );
 }

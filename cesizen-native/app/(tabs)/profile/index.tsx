@@ -18,6 +18,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Activity {
   id: number;
@@ -100,115 +101,108 @@ export default function Profile() {
 
   return (
     <ScrollView>
-      <View style={mainStyles.container}>
-        <Text style={mainStyles.h1}>Profil</Text>
-        {loading ? (
-          <Text>Chargement du profil...</Text>
-        ) : user ? (
-          <>
-            <Box>
-              <Text style={mainStyles.h2}>Informations personnelles</Text>
-              <Text>Prénom: {user.prenom}</Text>
-              <Text>Nom: {user.nom}</Text>
-              <Text>Email: {user.email}</Text>
-              {error ? <Text style={mainStyles.error}>{error}</Text> : null}
-              <ButtonIcon
-                onPress={() => router.push("/(tabs)/profile/edit")}
-                icon="create-outline"
-              />
-            </Box>
-            <Box>
-              <View style={styles.favoriteHeader}>
-                <Text style={mainStyles.h2}>Mes favoris</Text>
+      <SafeAreaView>
+        <View style={mainStyles.container}>
+          <Text style={mainStyles.h1}>Profil</Text>
+          {loading ? (
+            <Text>Chargement du profil...</Text>
+          ) : user ? (
+            <View style={{ display: "flex", gap: 10 }}>
+              <Box>
+                <Text style={mainStyles.h2}>Informatins personnelles</Text>
+                <Text>Prénom: {user.prenom}</Text>
+                <Text>Nom: {user.nom}</Text>
+                <Text>Email: {user.email}</Text>
+                {error ? <Text style={mainStyles.error}>{error}</Text> : null}
                 <ButtonIcon
-                  onPress={fetchFavorites}
-                  variant="secondary"
-                  icon="refresh"
-                  loading={favoritesLoading}
-                  disabled={favoritesLoading}
-                  padding={8}
+                  onPress={() => router.push("/(tabs)/profile/edit")}
+                  icon="create-outline"
+                />
+              </Box>
+              <Box>
+                <View style={styles.favoriteHeader}>
+                  <Text style={mainStyles.h2}>Mes favoris</Text>
+                  <ButtonIcon
+                    onPress={fetchFavorites}
+                    variant="secondary"
+                    icon="refresh"
+                    loading={favoritesLoading}
+                    disabled={favoritesLoading}
+                    padding={8}
+                  />
+                </View>
+                {favoritesError ? (
+                  <Text style={mainStyles.error}>{favoritesError}</Text>
+                ) : null}
+                {favoritesLoading ? (
+                  <Text>Chargement...</Text>
+                ) : favorites.length > 0 ? (
+                  favorites.map((activity) => (
+                    <ClickableBox
+                      key={activity.id}
+                      onPress={() => router.push(`/actvities/${activity.id}`)}
+                    >
+                      <View style={styles.favoriteRow}>
+                        <Text style={mainStyles.h3}>{activity.titre}</Text>
+                        <Pressable
+                          onPress={(event) => {
+                            event.stopPropagation();
+                            handleRemoveFavorite(activity.id);
+                          }}
+                          hitSlop={8}
+                          style={styles.favoriteRemove}
+                        >
+                          <Ionicons
+                            name="bookmark"
+                            size={20}
+                            color={colors.primary}
+                          />
+                        </Pressable>
+                      </View>
+                      {activity.image && (
+                        <Image
+                          source={{ uri: activity.image }}
+                          style={{ height: 120, borderRadius: 5 }}
+                          resizeMode="cover"
+                        />
+                      )}
+                      <Text>{activity.description}</Text>
+                    </ClickableBox>
+                  ))
+                ) : (
+                  <Text>Aucun favori pour le moment.</Text>
+                )}
+              </Box>
+              <View style={styles.actions}>
+                <Button
+                  title="Se déconnecter"
+                  onPress={handleLogout}
+                  variant="danger"
+                  icon="log-out"
+                  style={styles.actionButton}
                 />
               </View>
-              {favoritesError ? (
-                <Text style={mainStyles.error}>{favoritesError}</Text>
-              ) : null}
-              {favoritesLoading ? (
-                <Text>Chargement...</Text>
-              ) : favorites.length > 0 ? (
-                favorites.map((activity) => (
-                  <ClickableBox
-                    key={activity.id}
-                    onPress={() => router.push(`/actvities/${activity.id}`)}
-                  >
-                    <View style={styles.favoriteRow}>
-                      <Text style={mainStyles.h3}>{activity.titre}</Text>
-                      <Pressable
-                        onPress={(event) => {
-                          event.stopPropagation();
-                          handleRemoveFavorite(activity.id);
-                        }}
-                        hitSlop={8}
-                        style={styles.favoriteRemove}
-                      >
-                        <Ionicons
-                          name="bookmark"
-                          size={20}
-                          color={colors.primary}
-                        />
-                      </Pressable>
-                    </View>
-                    {activity.image && (
-                      <Image
-                        source={{ uri: activity.image }}
-                        style={{ height: 120, borderRadius: 5 }}
-                        resizeMode="cover"
-                      />
-                    )}
-                    <Text>{activity.description}</Text>
-                  </ClickableBox>
-                ))
-              ) : (
-                <Text>Aucun favori pour le moment.</Text>
-              )}
-            </Box>
-            <View style={styles.actions}>
-              <Button
-                title="Actualiser"
-                onPress={fetchCurrentUser}
-                variant="secondary"
-                icon="refresh"
-                loading={refreshing}
-                disabled={refreshing}
-                style={styles.actionButton}
-              />
-              <Button
-                title="Se déconnecter"
-                onPress={handleLogout}
-                variant="danger"
-                icon="log-out"
-                style={styles.actionButton}
-              />
             </View>
-          </>
-        ) : (
-          <>
-            <Text style={mainStyles.text}>
-              Connectez-vous pour voir votre profil.
-            </Text>
-            <Button
-              title="Se connecter"
-              onPress={() => router.push("/(auth)/login")}
-              icon="log-in"
-            />
-            <Text style={mainStyles.h2}>ou</Text>
-            <Button
-              title="Créer un compte"
-              onPress={() => router.push("/(auth)/signup")}
-              icon="person-add"
-            />
-          </>
-        )}
-      </View>
+          ) : (
+            <>
+              <Text style={mainStyles.text}>
+                Connectez-vous pour voir votre profil.
+              </Text>
+              <Button
+                title="Se connecter"
+                onPress={() => router.push("/(auth)/login")}
+                icon="log-in"
+              />
+              <Text style={mainStyles.h2}>ou</Text>
+              <Button
+                title="Créer un compte"
+                onPress={() => router.push("/(auth)/signup")}
+                icon="person-add"
+              />
+            </>
+          )}
+        </View>
+      </SafeAreaView>
     </ScrollView>
   );
 }

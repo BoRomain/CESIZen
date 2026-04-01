@@ -1,13 +1,14 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ViewStyle } from "react-native";
 import { colors } from "../styles/colors";
 
 interface Props {
   children: React.ReactNode;
+  style?: ViewStyle;
 }
 
-export default function Box({ children }: Props) {
-  return <View style={styles.container}>{children}</View>;
+export default function Box({ children, style }: Props) {
+  return <View style={[styles.container, style]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
