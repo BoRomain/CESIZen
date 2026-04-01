@@ -34,7 +34,7 @@ export default function Button({
       onClick={onClick}
       disabled={disabled || loading}
       className={`${disabled || loading ? "bg-gray-400 opacity-70" : palette[variant]} 
-      relative font-bold px-4 py-2 flex items-center rounded-xl text-background_container shadow ${className} 
+      relative font-medium px-4 py-2 flex items-center rounded-xl text-background_container shadow ${className} 
       transition ${!(disabled || loading) && "hover:opacity-80"}`}
       type={type}
     >

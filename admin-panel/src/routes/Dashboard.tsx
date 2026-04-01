@@ -36,16 +36,16 @@ export default function Dashboard() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold">Utilisateurs</h2>
-            <p className="text-3xl font-bold">{usersCount}</p>
+            <h2 className="">Utilisateurs</h2>
+            <p className="">{usersCount}</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold">Activités</h2>
-            <p className="text-3xl font-bold">{activitiesCount}</p>
+            <h2 className="">Activités</h2>
+            <p className="">{activitiesCount}</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold">Informations</h2>
-            <p className="text-3xl font-bold">{infosCount}</p>
+            <h2 className="">Informations</h2>
+            <p className="">{infosCount}</p>
           </div>
         </div>
       )}
