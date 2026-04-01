@@ -1,8 +1,12 @@
+import Box from "@/components/Box";
 import Button from "@/components/Button";
+import ButtonIcon from "@/components/ButtonIcon";
+import ClickableBox from "@/components/ClickableBox";
 import { useUser } from "@/contexts/UserProvider";
 import { colors } from "@/styles/colors";
 import mainStyles from "@/styles/mainStylesSheet";
 import axios from "@/utils/axios";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect, useState } from "react";
@@ -12,12 +16,8 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
-import Box from "@/components/Box";
-import ClickableBox from "@/components/ClickableBox";
-import { Ionicons } from "@expo/vector-icons";
 
 interface Activity {
   id: number;
@@ -37,29 +37,15 @@ export default function Profile() {
   const router = useRouter();
   const { user, setUser, loading } = useUser();
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [nom, setNom] = useState("");
-  const [prenom, setPrenom] = useState("");
-  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [favorites, setFavorites] = useState<Activity[]>([]);
   const [favoritesLoading, setFavoritesLoading] = useState(false);
   const [favoritesError, setFavoritesError] = useState("");
 
-  useEffect(() => {
-    if (!user) return;
-    setNom(user.nom || "");
-    setPrenom(user.prenom || "");
-    setEmail(user.email || "");
-  }, [user]);
-
   async function fetchCurrentUser() {
     setRefreshing(true);
     setError("");
-    setSuccess("");
     try {
       const response = await axios.get("/utilisateur/get-user");
       setUser(response.data);
@@ -90,7 +76,9 @@ export default function Profile() {
   async function handleRemoveFavorite(activityId: number) {
     try {
       await axios.delete(`/favori/${activityId}`);
-      setFavorites((prev) => prev.filter((activity) => activity.id !== activityId));
+      setFavorites((prev) =>
+        prev.filter((activity) => activity.id !== activityId),
+      );
     } catch {
       setFavoritesError("Impossible de retirer le favori.");
     }
@@ -101,31 +89,6 @@ export default function Profile() {
     setUser(null);
     setFavorites([]);
     router.replace("/(auth)/login");
-  }
-
-  async function handleSaveProfile() {
-    if (!user) return;
-
-    setSaving(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      await axios.put(`/utilisateur/update/${user.id}`, {
-        nom,
-        prenom,
-        email,
-        role: user.role,
-        status: true,
-      });
-      await fetchCurrentUser();
-      setIsEditing(false);
-      setSuccess("Profil mis à jour.");
-    } catch {
-      setError("Échec de la mise à jour du profil.");
-    } finally {
-      setSaving(false);
-    }
   }
 
   useEffect(() => {
@@ -144,82 +107,20 @@ export default function Profile() {
         ) : user ? (
           <>
             <Box>
-              <Text style={mainStyles.h2}>
-                {user.prenom} {user.nom}
-              </Text>
-              <Text>{user.email}</Text>
-              <Text style={styles.role}>Rôle: {user.role}</Text>
-            </Box>
-            <Box>
               <Text style={mainStyles.h2}>Informations personnelles</Text>
-              <TextInput
-                style={[mainStyles.input, !isEditing && styles.readOnlyInput]}
-                value={prenom}
-                onChangeText={setPrenom}
-                editable={isEditing}
-                placeholder="Prénom"
-                placeholderTextColor={colors.lightText}
-              />
-              <TextInput
-                style={[mainStyles.input, !isEditing && styles.readOnlyInput]}
-                value={nom}
-                onChangeText={setNom}
-                editable={isEditing}
-                placeholder="Nom"
-                placeholderTextColor={colors.lightText}
-              />
-              <TextInput
-                style={[mainStyles.input, !isEditing && styles.readOnlyInput]}
-                value={email}
-                onChangeText={setEmail}
-                editable={isEditing}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                placeholder="Email"
-                placeholderTextColor={colors.lightText}
-              />
+              <Text>Prénom: {user.prenom}</Text>
+              <Text>Nom: {user.nom}</Text>
+              <Text>Email: {user.email}</Text>
               {error ? <Text style={mainStyles.error}>{error}</Text> : null}
-              {success ? <Text style={styles.success}>{success}</Text> : null}
-              {isEditing ? (
-                <View style={styles.actions}>
-                  <Button
-                    title="Annuler"
-                    onPress={() => {
-                      setIsEditing(false);
-                      setError("");
-                      setSuccess("");
-                      if (user) {
-                        setNom(user.nom || "");
-                        setPrenom(user.prenom || "");
-                        setEmail(user.email || "");
-                      }
-                    }}
-                    variant="secondary"
-                    icon="close"
-                    style={styles.actionButton}
-                  />
-                  <Button
-                    title="Enregistrer"
-                    onPress={handleSaveProfile}
-                    icon="save"
-                    loading={saving}
-                    disabled={saving}
-                    style={styles.actionButton}
-                  />
-                </View>
-              ) : (
-                <Button
-                  title="Modifier mon profil"
-                  onPress={() => setIsEditing(true)}
-                  icon="create-outline"
-                />
-              )}
+              <ButtonIcon
+                onPress={() => router.push("/(tabs)/profile/edit")}
+                icon="create-outline"
+              />
             </Box>
             <Box>
               <View style={styles.favoriteHeader}>
                 <Text style={mainStyles.h2}>Mes favoris</Text>
-                <Button
-                  title="Actualiser"
+                <ButtonIcon
                   onPress={fetchFavorites}
                   variant="secondary"
                   icon="refresh"
@@ -249,7 +150,11 @@ export default function Profile() {
                         hitSlop={8}
                         style={styles.favoriteRemove}
                       >
-                        <Ionicons name="bookmark" size={20} color={colors.primary} />
+                        <Ionicons
+                          name="bookmark"
+                          size={20}
+                          color={colors.primary}
+                        />
                       </Pressable>
                     </View>
                     {activity.image && (
@@ -287,7 +192,9 @@ export default function Profile() {
           </>
         ) : (
           <>
-            <Text style={mainStyles.text}>Connectez-vous pour voir votre profil.</Text>
+            <Text style={mainStyles.text}>
+              Connectez-vous pour voir votre profil.
+            </Text>
             <Button
               title="Se connecter"
               onPress={() => router.push("/(auth)/login")}
@@ -333,12 +240,5 @@ const styles = StyleSheet.create({
   },
   favoriteRemove: {
     padding: 6,
-  },
-  readOnlyInput: {
-    backgroundColor: "#f6f6f6",
-  },
-  success: {
-    color: colors.primary,
-    marginBottom: 10,
   },
 });

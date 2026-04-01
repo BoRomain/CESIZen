@@ -7,6 +7,8 @@ import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import { Text, TextInput, View } from "react-native";
 import { colors } from "@/styles/colors";
+import ButtonIcon from "@/components/ButtonIcon";
+import TextField from "@/components/TextField";
 
 export default function Login() {
   const router = useRouter();
@@ -39,27 +41,24 @@ export default function Login() {
     <View style={mainStyles.container}>
       <View style={mainStyles.formContainer}>
         <Text style={mainStyles.h1}>Login</Text>
-        <Button
-          title="Back"
+        <ButtonIcon
           onPress={() => router.replace("/(tabs)/profile")}
           icon="arrow-back"
+          style={{ position: "absolute", top: 0, left: 0 }}
         />
-        <TextInput
-          style={mainStyles.input}
+        <TextField
+          text="Email"
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
-          autoCapitalize="none"
-          placeholderTextColor={colors.lightText}
         />
-        <TextInput
-          style={mainStyles.input}
+        <TextField
+          text="Mot de passe"
           placeholder="Mot de passe"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
-          placeholderTextColor={colors.lightText}
         />
         {error ? <Text style={mainStyles.error}>{error}</Text> : null}
         <Button
