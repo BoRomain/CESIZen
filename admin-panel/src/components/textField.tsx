@@ -3,7 +3,10 @@ import { InputAdornment, TextField as MuiTextField } from "@mui/material";
 interface Props {
   text?: string;
   value?: string;
-  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement, Element>;
+  onChange?: React.ChangeEventHandler<
+    HTMLInputElement | HTMLTextAreaElement,
+    Element
+  >;
   type?: React.HTMLInputTypeAttribute;
   disabled?: boolean;
   placeholder?: string;
@@ -39,6 +42,14 @@ export default function TextField({
         },
       }}
       className="[&_.MuiOutlinedInput-root.Mui-focused_.MuiOutlinedInput-notchedOutline]:border-primary!"
+      sx={{
+        "& .MuiInputBase-input": {
+          fontFamily: '"Inter", sans-serif',
+        },
+        "& .MuiInputLabel-root": {
+          fontFamily: '"Inter", sans-serif',
+        },
+      }}
     />
   );
 }
