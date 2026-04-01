@@ -8,7 +8,7 @@ import axiosClient, {
 const accessToken = localStorage.getItem("accessToken");
 
 const config: CreateAxiosDefaults = {
-  baseURL: "http://localhost:3000",
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
   timeout: 10000,
   headers: {
@@ -38,15 +38,26 @@ axios.interceptors.response.use(
     const axiosError = error as AxiosError;
     const originalRequest = axiosError.config as RetriableRequest | undefined;
     const status = axiosError.response?.status;
-    const isRefreshRequest = originalRequest?.url?.includes("/utilisateur/refresh");
+    const isRefreshRequest = originalRequest?.url?.includes(
+      "/utilisateur/refresh",
+    );
 
-    if (status === 401 && originalRequest && !originalRequest._retry && !isRefreshRequest) {
+    if (
+      status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !isRefreshRequest
+    ) {
       originalRequest._retry = true;
 
       try {
         if (!refreshPromise) {
           refreshPromise = axios
-            .post(config.baseURL + "/utilisateur/refresh", {}, { withCredentials: true })
+            .post(
+              config.baseURL + "/utilisateur/refresh",
+              {},
+              { withCredentials: true },
+            )
             .then((res) => {
               const { accessToken } = res.data;
               localStorage.setItem("accessToken", accessToken);
