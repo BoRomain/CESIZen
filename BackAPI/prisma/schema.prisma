@@ -60,6 +60,7 @@ model ActiviteDetente {
   duree            Int
   difficulte       Int
   image            String?
+  lieu             String
   type             String
   status           Boolean
   dateCreation     DateTime    @default(now())
