@@ -17,6 +17,7 @@ import Box from "@/components/Box";
 import { useUser } from "@/contexts/UserProvider";
 import { colors } from "@/styles/colors";
 import { SafeAreaView } from "react-native-safe-area-context";
+import TextField from "@/components/TextField";
 
 interface Activity {
   id: number;
@@ -36,6 +37,7 @@ export default function Activities() {
   const router = useRouter();
   const { user } = useUser();
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [titre, setTitre] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
 
@@ -43,8 +45,9 @@ export default function Activities() {
     axios
       .get("/activiteDetente", {
         params: {
+          titre,
           page: 1,
-          limit: 100,
+          limit: 20,
         },
       })
       .then((response) => {
@@ -56,7 +59,7 @@ export default function Activities() {
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  }, [titre]);
 
   useEffect(() => {
     if (!user) {
@@ -100,6 +103,12 @@ export default function Activities() {
         <View style={mainStyles.container}>
           <Text style={mainStyles.h1}>Activités Détente</Text>
           <Box style={{ display: "flex", gap: 10, width: "100%" }}>
+            <TextField
+              text="Rechercher un titre"
+              value={titre}
+              onChangeText={setTitre}
+              placeholder="Rechercher un titre"
+            />
             {isLoading ? (
               <Text>Chargement...</Text>
             ) : (
