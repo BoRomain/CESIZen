@@ -44,6 +44,14 @@ router.get("/count", AdminAuthMiddleware, async (req, res) => {
   res.json({ count });
 });
 
+router.get("/status-count", AdminAuthMiddleware, async (req, res) => {
+  const [active, inactive] = await Promise.all([
+    prisma.utilisateur.count({ where: { status: true } }),
+    prisma.utilisateur.count({ where: { status: false } }),
+  ]);
+  res.json({ active, inactive });
+});
+
 router.get("/get-user", async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];

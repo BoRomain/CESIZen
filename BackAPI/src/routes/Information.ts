@@ -27,6 +27,14 @@ router.get("/count", AdminAuthMiddleware, async (req, res) => {
   res.json({ count });
 });
 
+router.get("/status-count", AdminAuthMiddleware, async (req, res) => {
+  const [active, inactive] = await Promise.all([
+    prisma.information.count({ where: { status: true } }),
+    prisma.information.count({ where: { status: false } }),
+  ]);
+  res.json({ active, inactive });
+});
+
 router.get("/categories", async (req, res) => {
   const categories = await prisma.information
     .findMany({

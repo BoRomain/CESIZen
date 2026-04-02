@@ -1,24 +1,47 @@
 import { useEffect, useState } from "react";
 import Box from "../components/box";
+import DonutChart from "../components/donutChart";
 import axios from "../utils/axios";
 
 export default function Dashboard() {
   const [usersCount, setUsersCount] = useState(0);
-  const [activitiesCount, setActivitiesCount] = useState(0);
+  const [activeUsersCount, setActiveUsersCount] = useState(0);
+  const [inactiveUsersCount, setInactiveUsersCount] = useState(0);
   const [infosCount, setInfosCount] = useState(0);
+  const [activeInfosCount, setActiveInfosCount] = useState(0);
+  const [inactiveInfosCount, setInactiveInfosCount] = useState(0);
+  const [activitiesCount, setActivitiesCount] = useState(0);
+  const [activeActivitiesCount, setActiveActivitiesCount] = useState(0);
+  const [inactiveActivitiesCount, setInactiveActivitiesCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [users, activities, infos] = await Promise.all([
+        const [
+          users,
+          activities,
+          infos,
+          userStatus,
+          infoStatus,
+          activityStatus,
+        ] = await Promise.all([
           axios.get("/utilisateur/count"),
           axios.get("/activiteDetente/count"),
           axios.get("/information/count"),
+          axios.get("/utilisateur/status-count"),
+          axios.get("/information/status-count"),
+          axios.get("/activiteDetente/status-count"),
         ]);
         setUsersCount(users.data.count);
         setActivitiesCount(activities.data.count);
         setInfosCount(infos.data.count);
+        setActiveUsersCount(userStatus.data.active);
+        setInactiveUsersCount(userStatus.data.inactive);
+        setActiveInfosCount(infoStatus.data.active);
+        setInactiveInfosCount(infoStatus.data.inactive);
+        setActiveActivitiesCount(activityStatus.data.active);
+        setInactiveActivitiesCount(activityStatus.data.inactive);
       } catch (error) {
         console.error("Failed to fetch dashboard data", error);
       } finally {
@@ -34,19 +57,44 @@ export default function Dashboard() {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="">Utilisateurs</h3>
-            <h2 className="">{usersCount}</h2>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="">Activités</h3>
-            <h2 className="">{activitiesCount}</h2>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="">Informations</h3>
-            <h2 className="">{infosCount}</h2>
-          </div>
+        <div className="grid xl:grid-cols-3 lg:grid-cols-2 gap-4">
+          <DonutChart
+            title="Utilisateurs actifs vs inactifs"
+            segments={[
+              { label: "Actifs", value: activeUsersCount, color: "#22c55e" },
+              {
+                label: "Inactifs",
+                value: inactiveUsersCount,
+                color: "#ef4444",
+              },
+            ]}
+          />
+          <DonutChart
+            title="Informations actifs vs inactifs"
+            segments={[
+              { label: "Actifs", value: activeInfosCount, color: "#22c55e" },
+              {
+                label: "Inactifs",
+                value: inactiveInfosCount,
+                color: "#ef4444",
+              },
+            ]}
+          />
+          <DonutChart
+            title="Activités actifs vs inactifs"
+            segments={[
+              {
+                label: "Actifs",
+                value: activeActivitiesCount,
+                color: "#22c55e",
+              },
+              {
+                label: "Inactifs",
+                value: inactiveActivitiesCount,
+                color: "#ef4444",
+              },
+            ]}
+          />
         </div>
       )}
     </Box>
