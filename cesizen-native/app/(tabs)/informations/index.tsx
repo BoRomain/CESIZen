@@ -28,7 +28,7 @@ export default function Informations() {
       <SafeAreaView>
         <View style={mainStyles.container}>
           <Text style={mainStyles.h1}>Informations</Text>
-          <Box>
+          <Box style={{ width: "100%", gap: 10 }}>
             <Text style={mainStyles.h2}>Catégories</Text>
             {categories.map((categorie, index) => (
               <ClickableBox

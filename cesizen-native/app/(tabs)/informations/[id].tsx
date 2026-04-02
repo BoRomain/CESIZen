@@ -47,7 +47,7 @@ export default function InformationDetail() {
   return (
     <ScrollView>
       <View style={mainStyles.container}>
-        <Box>
+        <Box style={{ width: "100%", gap: 10 }}>
           {information ? (
             <>
               <Text style={mainStyles.h2}>{information.titre}</Text>

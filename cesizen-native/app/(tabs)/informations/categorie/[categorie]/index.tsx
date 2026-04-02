@@ -55,7 +55,7 @@ export default function InformationCategories() {
           headerShown: true,
         }}
       />
-      <Box>
+      <Box style={{ width: "100%", gap: 10 }}>
         {informations.length > 0 ? (
           informations.map((info) => (
             <ClickableBox

@@ -87,7 +87,7 @@ export default function ActivityDetails() {
   return (
     <ScrollView>
       <View style={mainStyles.container}>
-        <Box>
+        <Box style={{ width: "100%" }}>
           {activity ? (
             <>
               <Text style={mainStyles.h2}>{activity.titre}</Text>
@@ -104,7 +104,9 @@ export default function ActivityDetails() {
               <Text>Difficulté: {activity.difficulte}/5</Text>
               {user ? (
                 <Button
-                  title={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+                  title={
+                    isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"
+                  }
                   onPress={toggleFavorite}
                   icon={isFavorite ? "bookmark" : "bookmark-outline"}
                   loading={favoriteLoading}
