@@ -60,8 +60,12 @@ describe("Utilisateur routes", () => {
     });
     prismaMock.utilisateur.update.mockResolvedValue({});
     (passwordUtils.comparePassword as jest.Mock).mockResolvedValue(true);
-    (tokenUtils.generateRefreshToken as jest.Mock).mockReturnValue("refresh-token");
-    (tokenUtils.generateAccessToken as jest.Mock).mockReturnValue("access-token");
+    (tokenUtils.generateRefreshToken as jest.Mock).mockReturnValue(
+      "refresh-token",
+    );
+    (tokenUtils.generateAccessToken as jest.Mock).mockReturnValue(
+      "access-token",
+    );
 
     const response = await request(buildApp())
       .post("/utilisateur/login")
@@ -69,7 +73,9 @@ describe("Utilisateur routes", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ accessToken: "access-token" });
-    expect(response.headers["set-cookie"]?.[0]).toContain("refreshToken=refresh-token");
+    expect(response.headers["set-cookie"]?.[0]).toContain(
+      "refreshToken=refresh-token",
+    );
     expect(prismaMock.utilisateur.update).toHaveBeenCalled();
   });
 
@@ -133,7 +139,13 @@ describe("Utilisateur routes", () => {
     const response = await request(buildApp())
       .put("/utilisateur/update/1")
       .set("Authorization", "Bearer valid-token")
-      .send({ nom: "Updated", prenom: "User", email: "user@example.com", role: "user", status: true });
+      .send({
+        nom: "Updated",
+        prenom: "User",
+        email: "user@example.com",
+        role: "user",
+        status: true,
+      });
 
     expect(response.status).toBe(200);
     expect(prismaMock.utilisateur.update).toHaveBeenCalled();
