@@ -1,5 +1,6 @@
 import cookieParser from "cookie-parser";
 import express from "express";
+import jwt from "jsonwebtoken";
 import request from "supertest";
 
 jest.mock("../database.js", () => ({
@@ -46,6 +47,7 @@ const buildApp = () => {
 
 describe("Utilisateur routes", () => {
   beforeEach(() => {
+    jest.restoreAllMocks();
     jest.clearAllMocks();
   });
 
@@ -106,5 +108,64 @@ describe("Utilisateur routes", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({ id: 7, email: "john@example.com" });
+  });
+
+  it("PUT /utilisateur/update/:id returns 401 when access token is invalid", async () => {
+    const prismaMock = prisma as any;
+    jest.spyOn(jwt, "verify").mockImplementation(() => {
+      throw new Error("invalid token");
+    });
+
+    const response = await request(buildApp())
+      .put("/utilisateur/update/1")
+      .set("Authorization", "Bearer invalid-token")
+      .send({ nom: "Updated" });
+
+    expect(response.status).toBe(401);
+    expect(prismaMock.utilisateur.update).not.toHaveBeenCalled();
+  });
+
+  it("PUT /utilisateur/update/:id updates user when access token is valid", async () => {
+    const prismaMock = prisma as any;
+    jest.spyOn(jwt, "verify").mockReturnValue({ id: 1, role: "user" } as any);
+    prismaMock.utilisateur.update.mockResolvedValue({ id: 1 });
+
+    const response = await request(buildApp())
+      .put("/utilisateur/update/1")
+      .set("Authorization", "Bearer valid-token")
+      .send({ nom: "Updated", prenom: "User", email: "user@example.com", role: "user", status: true });
+
+    expect(response.status).toBe(200);
+    expect(prismaMock.utilisateur.update).toHaveBeenCalled();
+  });
+
+  it("POST /utilisateur/enable/:id returns 401 for non-admin users", async () => {
+    const prismaMock = prisma as any;
+    jest.spyOn(jwt, "verify").mockReturnValue({ id: 1, role: "user" } as any);
+
+    const response = await request(buildApp())
+      .post("/utilisateur/enable/1")
+      .set("Authorization", "Bearer valid-user-token");
+
+    expect(response.status).toBe(401);
+    expect(prismaMock.utilisateur.update).not.toHaveBeenCalled();
+  });
+
+  it("POST /utilisateur/enable/:id enables user for admin users", async () => {
+    const prismaMock = prisma as any;
+    jest.spyOn(jwt, "verify").mockReturnValue({ id: 99, role: "admin" } as any);
+    prismaMock.utilisateur.update.mockResolvedValue({ id: 1, status: true });
+
+    const response = await request(buildApp())
+      .post("/utilisateur/enable/1")
+      .set("Authorization", "Bearer valid-admin-token");
+
+    expect(response.status).toBe(200);
+    expect(prismaMock.utilisateur.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 1 },
+        data: { status: true },
+      }),
+    );
   });
 });
