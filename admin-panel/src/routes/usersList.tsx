@@ -55,7 +55,7 @@ export default function UsersList() {
     if (
       window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")
     ) {
-      axios.post(`/utilisateur/disable/${id}`).then(() => {
+      axios.delete(`/utilisateur/delete/${id}`).then(() => {
         handleSearchUsers(filter);
       });
     }

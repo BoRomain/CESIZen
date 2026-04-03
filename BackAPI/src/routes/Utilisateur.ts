@@ -204,7 +204,7 @@ router.post("/create", async (req, res) => {
 
 router.put("/update/:id", AuthMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { nom, prenom, email, role, status } = req.body;
+  const { nom, prenom, email, password, role, status } = req.body;
   const user = await prisma.utilisateur.update({
     where: {
       id: Number(id),
@@ -218,7 +218,28 @@ router.put("/update/:id", AuthMiddleware, async (req, res) => {
       dateModification: new Date(),
     },
   });
+
+  if (password) {
+    prisma.utilisateur.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        motDePasse: await hashPassword(password),
+      },
+    });
+  }
   res.json("Utilisateur mis à jour avec succès");
+});
+
+router.delete("/delete/:id", AdminAuthMiddleware, async (req, res) => {
+  const { id } = req.params;
+  await prisma.utilisateur.delete({
+    where: {
+      id: Number(id),
+    },
+  });
+  res.json("Utilisateur supprimé avec succès");
 });
 
 router.post("/disable/:id", AuthMiddleware, async (req, res) => {

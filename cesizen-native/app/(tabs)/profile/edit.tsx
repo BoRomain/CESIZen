@@ -16,6 +16,7 @@ export default function EditProfileScreen() {
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
   const [email, setEmail] = useState("");
+  const [motDePasse, setMotDePasse] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [saving, setSaving] = useState(false);
@@ -44,6 +45,7 @@ export default function EditProfileScreen() {
         nom,
         prenom,
         email,
+        password: motDePasse,
         role: user.role,
         status: true,
       });
@@ -84,7 +86,7 @@ export default function EditProfileScreen() {
     <ScrollView>
       <View style={mainStyles.container}>
         <Text style={mainStyles.h1}>Modifier mon profil</Text>
-        <Box>
+        <Box style={{ width: "100%", gap: 10 }}>
           <TextField
             text="Prénom"
             value={prenom}
@@ -106,6 +108,14 @@ export default function EditProfileScreen() {
             editable={!saving}
             keyboardType="email-address"
             placeholder="Email"
+          />
+          <TextField
+            text="Mot de passe"
+            value={motDePasse}
+            onChangeText={setMotDePasse}
+            editable={!saving}
+            placeholder="Mot de passe"
+            secureTextEntry
           />
 
           {error ? <Text style={mainStyles.error}>{error}</Text> : null}

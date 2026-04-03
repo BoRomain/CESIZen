@@ -91,6 +91,26 @@
         }
       }
     },
+    "/utilisateur/status-count": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/utilisateur/get-user": {
       "get": {
         "description": "",
@@ -378,6 +398,26 @@
         }
       }
     },
+    "/information/status-count": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/information/categories": {
       "get": {
         "description": "",
@@ -603,6 +643,26 @@
         }
       }
     },
+    "/activiteDetente/status-count": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/activiteDetente/create": {
       "post": {
         "description": "",
@@ -628,6 +688,9 @@
                   "example": "any"
                 },
                 "type": {
+                  "example": "any"
+                },
+                "lieu": {
                   "example": "any"
                 },
                 "duree": {
