@@ -123,13 +123,6 @@ export default function EditProfileScreen() {
 
           <View style={styles.actions}>
             <Button
-              title="Annuler"
-              onPress={() => router.back()}
-              variant="secondary"
-              icon="close"
-              style={styles.actionButton}
-            />
-            <Button
               title="Enregistrer"
               onPress={handleSaveProfile}
               icon="save"
