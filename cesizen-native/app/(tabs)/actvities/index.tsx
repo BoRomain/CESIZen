@@ -125,6 +125,7 @@ export default function Activities() {
                         toggleFavorite(activity.id);
                       }}
                       hitSlop={8}
+                      style={{ position: "absolute", right: 0 }}
                     >
                       <Ionicons
                         name={
