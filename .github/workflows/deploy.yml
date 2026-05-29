@@ -95,9 +95,16 @@ jobs:
           HOST="${AZURE_VM_HOST:?AZURE_VM_HOST secret is required}"
           USER="${AZURE_VM_USER:?AZURE_VM_USER secret is required}"
           PORT="${AZURE_VM_PORT:-22}"
-          APP_DIR="${AZURE_APP_DIR:-/opt/CESIZen}"
+          REMOTE_HOME="$(ssh -i ~/.ssh/id_rsa -p "$PORT" "${USER}@${HOST}" 'printf %s "$HOME"')"
+          APP_DIR="${AZURE_APP_DIR:-${REMOTE_HOME}/CESIZen}"
 
-          ssh -i ~/.ssh/id_rsa -p "$PORT" "${USER}@${HOST}" "mkdir -p '${APP_DIR}'"
+          ssh -i ~/.ssh/id_rsa -p "$PORT" "${USER}@${HOST}" "
+            set -euo pipefail
+            if ! mkdir -p '${APP_DIR}' 2>/dev/null; then
+              echo 'AZURE_APP_DIR must be writable by the SSH user. Use a path like ${REMOTE_HOME}/CESIZen or grant access to the configured directory.' >&2
+              exit 1
+            fi
+          "
 
           rsync -az \
             -e "ssh -i ~/.ssh/id_rsa -p ${PORT}" \
@@ -109,7 +116,8 @@ jobs:
           HOST="${AZURE_VM_HOST:?AZURE_VM_HOST secret is required}"
           USER="${AZURE_VM_USER:?AZURE_VM_USER secret is required}"
           PORT="${AZURE_VM_PORT:-22}"
-          APP_DIR="${AZURE_APP_DIR:-/opt/CESIZen}"
+          REMOTE_HOME="$(ssh -i ~/.ssh/id_rsa -p "$PORT" "${USER}@${HOST}" 'printf %s "$HOME"')"
+          APP_DIR="${AZURE_APP_DIR:-${REMOTE_HOME}/CESIZen}"
 
           ssh -i ~/.ssh/id_rsa -p "$PORT" "${USER}@${HOST}" "
             cd '${APP_DIR}' && \
