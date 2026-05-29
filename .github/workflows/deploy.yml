@@ -17,15 +17,24 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  # Nom de l'image basé sur votre dépôt (ex: ghcr.io/votre-user/cesizen)
-  IMAGE_NAME: ${{ github.repository }} 
-
 jobs:
-  # ÉTAPE 1 : On build et on envoie l'image sur GitHub Packages
   build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      image_tag: ${{ steps.meta.outputs.version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: backapi
+            context: ./BackAPI
+            dockerfile: ./BackAPI/Dockerfile
+            image_suffix: cesizen-backapi
+            build_args: ""
+          - name: admin-panel
+            context: ./admin-panel
+            dockerfile: ./admin-panel/Dockerfile
+            image_suffix: cesizen-admin-panel
+            build_args: |
+              VITE_API_URL=http://api.localhost
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,13 +44,13 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} # Généré automatiquement par GitHub
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image_suffix }}
           tags: |
             type=raw,value=latest
             type=sha,format=short
@@ -49,13 +58,13 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile # Ajustez le chemin vers votre Dockerfile de prod si besoin
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
           push: true
+          build-args: ${{ matrix.build_args }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  # ÉTAPE 2 : On se connecte à la VM pour qu'elle télécharge la nouvelle image
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
