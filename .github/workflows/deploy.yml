@@ -1,0 +1,111 @@
+name: Deploy to Azure VM via GHCR
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Permet d'écrire l'image dans GitHub Packages (GHCR)
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  # Nom de l'image basé sur votre dépôt (ex: ghcr.io/votre-user/cesizen)
+  IMAGE_NAME: ${{ github.repository }} 
+
+jobs:
+  # ÉTAPE 1 : On build et on envoie l'image sur GitHub Packages
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} # Généré automatiquement par GitHub
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile # Ajustez le chemin vers votre Dockerfile de prod si besoin
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ÉTAPE 2 : On se connecte à la VM pour qu'elle télécharge la nouvelle image
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    env:
+      AZURE_VM_HOST: ${{ secrets.AZURE_VM_HOST }}
+      AZURE_VM_USER: ${{ secrets.AZURE_VM_USER }}
+      AZURE_VM_PORT: ${{ secrets.AZURE_VM_PORT }}
+      AZURE_APP_DIR: ${{ secrets.AZURE_APP_DIR }}
+    steps:
+      - name: Checkout repository (Uniquement pour récupérer le docker-compose.prod.yml)
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH access
+        run: |
+          set -euo pipefail
+          HOST="${AZURE_VM_HOST:?AZURE_VM_HOST secret is required}"
+          PORT="${AZURE_VM_PORT:-22}"
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.AZURE_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p "$PORT" -H "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Sync Compose file and .env to the VM
+        run: |
+          set -euo pipefail
+          HOST="${AZURE_VM_HOST:?AZURE_VM_HOST secret is required}"
+          USER="${AZURE_VM_USER:?AZURE_VM_USER secret is required}"
+          PORT="${AZURE_VM_PORT:-22}"
+          APP_DIR="${AZURE_APP_DIR:-/opt/CESIZen}"
+
+          ssh -i ~/.ssh/id_rsa -p "$PORT" "${USER}@${HOST}" "mkdir -p '${APP_DIR}'"
+
+          rsync -az \
+            -e "ssh -i ~/.ssh/id_rsa -p ${PORT}" \
+            ./docker-compose.prod.yml "${USER}@${HOST}:${APP_DIR}/"
+
+      - name: Deploy Image on Azure VM
+        run: |
+          set -euo pipefail
+          HOST="${AZURE_VM_HOST:?AZURE_VM_HOST secret is required}"
+          USER="${AZURE_VM_USER:?AZURE_VM_USER secret is required}"
+          PORT="${AZURE_VM_PORT:-22}"
+          APP_DIR="${AZURE_APP_DIR:-/opt/CESIZen}"
+
+          ssh -i ~/.ssh/id_rsa -p "$PORT" "${USER}@${HOST}" "
+            cd '${APP_DIR}' && \
+            echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin && \
+            docker compose -f docker-compose.prod.yml --env-file .env pull && \
+            docker compose -f docker-compose.prod.yml --env-file .env up -d --remove-orphans && \
+            docker image prune -f
+          "

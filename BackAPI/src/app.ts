@@ -5,7 +5,7 @@ import activiteDetente from "./routes/ActiviteDetente.js";
 import admin from "./routes/Admin.js";
 import favori from "./routes/Favori.js";
 import swaggerUi from "swagger-ui-express";
-import swaggerOutput from "./swagger-output.json";
+import swaggerOutput from "./swagger-output.json" with { type: "json" };
 import { errorHandler } from "./middlewares/Errors.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";

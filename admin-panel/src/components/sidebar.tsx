@@ -2,10 +2,8 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
-  Settings,
   User,
   Menu,
-  X,
   BookOpen,
   Activity,
   ArrowLeftIcon,
@@ -13,7 +11,6 @@ import {
 } from "lucide-react";
 import logo2 from "../svg/CESIZen logo2.svg";
 import { useUser } from "../contexts/UserProviter";
-import Cookies from "js-cookie";
 import axios from "../utils/axios";
 
 const Sidebar = () => {

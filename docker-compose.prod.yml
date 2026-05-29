@@ -1,0 +1,90 @@
+services:
+  traefik:
+    image: traefik:v3.6
+    container_name: cesizen-traefik-prod
+    restart: unless-stopped
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.traefik.address=:8080
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - internal
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: cesizen-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - internal
+
+  backapi:
+    image: ghcr.io/BoRomain/cesizen-backapi:latest
+    container_name: cesizen-backapi-prod
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      ACCESS_SECRET: ${ACCESS_SECRET}
+      REFRESH_SECRET: ${REFRESH_SECRET}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cesizen-backapi.rule=Host(`api.localhost`)
+      - traefik.http.routers.cesizen-backapi.entrypoints=web
+      - traefik.http.services.cesizen-backapi.loadbalancer.server.port=3000
+    command: >
+      sh -c "npx prisma migrate deploy &&
+             npm run seed-dist &&
+             node dist/src/app.js"
+    networks:
+      - internal
+
+  admin-panel:
+    image: ghcr.io/BoRomain/cesizen-admin-panel:latest
+    container_name: cesizen-admin-panel-prod
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://api.localhost
+    ports:
+      - "5173:5173"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.cesizen-admin-panel.rule=Host(`admin.localhost`)
+      - traefik.http.routers.cesizen-admin-panel.entrypoints=web
+      - traefik.http.services.cesizen-admin-panel.loadbalancer.server.port=5173
+    networks:
+      - internal
+
+volumes:
+  postgres_data:
+
+networks:
+  internal:

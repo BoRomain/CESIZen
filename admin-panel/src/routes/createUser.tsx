@@ -24,7 +24,7 @@ export default function CreateUser() {
         showMessage("Utilisateur ajouté", "success");
         navigate("/main/users");
       })
-      .catch((err) => {
+      .catch(() => {
         showMessage("Une erreur est survenue", "error");
       })
       .finally(() => {

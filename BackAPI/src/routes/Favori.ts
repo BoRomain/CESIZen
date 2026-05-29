@@ -1,6 +1,6 @@
 import { Router } from "express";
-import prisma from "../database";
-import { verifyAccessToken } from "../utils/token";
+import prisma from "../database.js";
+import { verifyAccessToken } from "../utils/token.js";
 
 const router = Router();
 
@@ -14,6 +14,10 @@ const getUserId = (req: any, res: any): number | null => {
 
   try {
     const payload = verifyAccessToken(token);
+    if (!payload) {
+      res.sendStatus(401);
+      return null;
+    }
     return payload.id;
   } catch {
     res.sendStatus(401);

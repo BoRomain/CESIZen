@@ -1,4 +1,4 @@
-import { comparePassword, hashPassword } from "../utils/password";
+import { comparePassword, hashPassword } from "../utils/password.js";
 
 describe("password utils", () => {
   it("Hash le password et le compare", async () => {

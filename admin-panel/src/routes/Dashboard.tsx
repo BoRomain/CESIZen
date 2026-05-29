@@ -4,13 +4,10 @@ import DonutChart from "../components/donutChart";
 import axios from "../utils/axios";
 
 export default function Dashboard() {
-  const [usersCount, setUsersCount] = useState(0);
   const [activeUsersCount, setActiveUsersCount] = useState(0);
   const [inactiveUsersCount, setInactiveUsersCount] = useState(0);
-  const [infosCount, setInfosCount] = useState(0);
   const [activeInfosCount, setActiveInfosCount] = useState(0);
   const [inactiveInfosCount, setInactiveInfosCount] = useState(0);
-  const [activitiesCount, setActivitiesCount] = useState(0);
   const [activeActivitiesCount, setActiveActivitiesCount] = useState(0);
   const [inactiveActivitiesCount, setInactiveActivitiesCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -18,14 +15,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [
-          users,
-          activities,
-          infos,
-          userStatus,
-          infoStatus,
-          activityStatus,
-        ] = await Promise.all([
+        const [userStatus, infoStatus, activityStatus] = await Promise.all([
           axios.get("/utilisateur/count"),
           axios.get("/activiteDetente/count"),
           axios.get("/information/count"),
@@ -33,9 +23,6 @@ export default function Dashboard() {
           axios.get("/information/status-count"),
           axios.get("/activiteDetente/status-count"),
         ]);
-        setUsersCount(users.data.count);
-        setActivitiesCount(activities.data.count);
-        setInfosCount(infos.data.count);
         setActiveUsersCount(userStatus.data.active);
         setInactiveUsersCount(userStatus.data.inactive);
         setActiveInfosCount(infoStatus.data.active);

@@ -1,5 +1,4 @@
 import Sidebar from "./components/sidebar";
-import { useUser } from "./contexts/UserProviter";
 import { Outlet } from "react-router-dom";
 
 export default function MainLayout() {

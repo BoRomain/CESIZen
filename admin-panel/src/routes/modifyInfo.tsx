@@ -39,7 +39,7 @@ export default function ModifyInfo() {
       .then(() => {
         navigate("/main/infos");
       })
-      .catch((err) => {
+      .catch(() => {
         showMessage("Une erreur est survenue", "error");
       })
       .finally(() => {

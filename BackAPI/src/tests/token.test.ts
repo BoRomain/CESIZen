@@ -3,7 +3,7 @@ import {
   generateRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
-} from "../utils/token";
+} from "../utils/token.js";
 
 describe("token utils", () => {
   it("génère un token", () => {
