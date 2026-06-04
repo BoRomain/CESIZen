@@ -50,7 +50,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image_suffix }}
+          images: ${{ env.REGISTRY }}/boromain/${{ matrix.image_suffix }}
           tags: |
             type=raw,value=latest
             type=sha,format=short

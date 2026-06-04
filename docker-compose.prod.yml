@@ -41,7 +41,7 @@ services:
       - internal
 
   backapi:
-    image: ghcr.io/BoRomain/cesizen-backapi:latest
+    image: ghcr.io/boromain/cesizen-backapi:latest
     container_name: cesizen-backapi-prod
     restart: unless-stopped
     env_file:
@@ -68,7 +68,7 @@ services:
       - internal
 
   admin-panel:
-    image: ghcr.io/BoRomain/cesizen-admin-panel:latest
+    image: ghcr.io/boromain/cesizen-admin-panel:latest
     container_name: cesizen-admin-panel-prod
     restart: unless-stopped
     environment:
