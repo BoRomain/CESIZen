@@ -57,7 +57,7 @@ export default function Dashboard() {
             ]}
           />
           <DonutChart
-            title="Informations actifs vs inactifs"
+            title="Informations actifs v inactifs"
             segments={[
               { label: "Actifs", value: activeInfosCount, color: "#22c55e" },
               {
