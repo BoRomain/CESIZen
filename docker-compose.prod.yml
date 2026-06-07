@@ -57,7 +57,7 @@ services:
         condition: service_healthy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.cesizen-backapi.rule=Host(`api.localhost`)
+      - traefik.http.routers.cesizen-backapi.rule=Host(`api.cesi-projets.switzerlandnorth.cloudapp.azure.com`)
       - traefik.http.routers.cesizen-backapi.entrypoints=web
       - traefik.http.services.cesizen-backapi.loadbalancer.server.port=3000
     command: >
@@ -72,12 +72,12 @@ services:
     container_name: cesizen-admin-panel-prod
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://api.localhost
+      VITE_API_URL: http://api.cesi-projets.switzerlandnorth.cloudapp.azure.com
     ports:
       - "5173:5173"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.cesizen-admin-panel.rule=Host(`admin.localhost`)
+      - traefik.http.routers.cesizen-admin-panel.rule=Host(`admin.cesi-projets.switzerlandnorth.cloudapp.azure.com`)
       - traefik.http.routers.cesizen-admin-panel.entrypoints=web
       - traefik.http.services.cesizen-admin-panel.loadbalancer.server.port=5173
     networks:
