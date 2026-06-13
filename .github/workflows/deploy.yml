@@ -6,19 +6,18 @@ on:
       - main
   workflow_dispatch:
 
-# Permet d'écrire l'image dans GitHub Packages (GHCR)
 permissions:
   contents: read
-  packages: write
 
 concurrency:
-  group: deploy-production
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
 jobs:
   build-and-push:
+    name: Build and push ${{ matrix.service }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -39,6 +38,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -53,10 +55,11 @@ jobs:
           images: ${{ env.REGISTRY }}/boromain/${{ matrix.image_suffix }}
           tags: |
             type=raw,value=latest
+            type=ref,event=branch
             type=sha,format=short
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
@@ -64,32 +67,39 @@ jobs:
           build-args: ${{ matrix.build_args }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     env:
-      AZURE_VM_HOST: ${{ secrets.AZURE_VM_HOST }}
-      AZURE_VM_USER: ${{ secrets.AZURE_VM_USER }}
-      AZURE_VM_PORT: ${{ secrets.AZURE_VM_PORT }}
-      AZURE_APP_DIR: ${{ secrets.AZURE_APP_DIR }}
+      BACKAPI_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/cesizen-backapi:latest
+      ADMIN_PANEL_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/cesizen-admin-panel:latest
+
     steps:
-      - name: Checkout repository (Uniquement pour récupérer le docker-compose.prod.yml)
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Prepare SSH access
         run: |
           set -euo pipefail
-          HOST="${AZURE_VM_HOST:?AZURE_VM_HOST secret is required}"
-          PORT="${AZURE_VM_PORT:-22}"
+
+          if [[ -z "${VM_HOST}" || -z "${VM_USER}" ]]; then
+            echo "AZURE_VM_HOST and AZURE_VM_USER secrets are required." >&2
+            exit 1
+          fi
 
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf '%s\n' "${{ secrets.AZURE_SSH_KEY }}" > ~/.ssh/id_rsa
+          printf '%s' "${{ secrets.AZURE_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p "$PORT" -H "$HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${VM_PORT}" "${VM_HOST}" >> ~/.ssh/known_hosts
 
-      - name: Sync Compose file and .env to the VM
+      - name: Sync Compose file to the VM
         run: |
           set -euo pipefail
           HOST="${AZURE_VM_HOST:?AZURE_VM_HOST secret is required}"
@@ -107,10 +117,10 @@ jobs:
           "
 
           rsync -az \
-            -e "ssh -i ~/.ssh/id_rsa -p ${PORT}" \
-            ./docker-compose.prod.yml "${USER}@${HOST}:${APP_DIR}/"
+            -e "ssh -i ~/.ssh/id_rsa -p ${VM_PORT} -o StrictHostKeyChecking=accept-new" \
+            ./docker-compose.prod.yml "${VM_USER}@${VM_HOST}:${VM_APP_DIR}/"
 
-      - name: Deploy Image on Azure VM
+      - name: Deploy images on Azure VM
         run: |
           set -euo pipefail
           HOST="${AZURE_VM_HOST:?AZURE_VM_HOST secret is required}"
