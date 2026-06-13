@@ -99,6 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: read
 
     env:
       BACKAPI_IMAGE: ghcr.io/boromain/cesizen-backapi:${{ needs.build-and-push.outputs.backapi-sha }}
