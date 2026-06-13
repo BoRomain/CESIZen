@@ -36,9 +36,6 @@ jobs:
             image_suffix: cesizen-admin-panel
             build_args: |
               VITE_API_URL=http://api.localhost
-    outputs:
-      backapi-sha: ${{ steps.vars.outputs.SHA_TAG }}
-      admin-panel-sha: ${{ steps.vars.outputs.SHA_TAG }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -101,13 +98,17 @@ jobs:
       contents: read
       packages: read
 
-    env:
-      BACKAPI_IMAGE: ghcr.io/boromain/cesizen-backapi:${{ needs.build-and-push.outputs.backapi-sha }}
-      ADMIN_PANEL_IMAGE: ghcr.io/boromain/cesizen-admin-panel:${{ needs.build-and-push.outputs.admin-panel-sha }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Resolve image tags
+        id: tags
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "BACKAPI_IMAGE=ghcr.io/boromain/cesizen-backapi:sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "ADMIN_PANEL_IMAGE=ghcr.io/boromain/cesizen-admin-panel:sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
 
       - name: Prepare SSH access
         env:
@@ -116,12 +117,10 @@ jobs:
           VM_PORT: ${{ secrets.AZURE_VM_PORT || '22' }}
         run: |
           set -euo pipefail
-
           if [[ -z "${VM_HOST}" || -z "${VM_USER}" ]]; then
             echo "AZURE_VM_HOST and AZURE_VM_USER secrets are required." >&2
             exit 1
           fi
-
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           printf '%s' "${{ secrets.AZURE_SSH_KEY }}" > ~/.ssh/id_rsa
@@ -138,15 +137,7 @@ jobs:
           set -euo pipefail
           REMOTE_HOME="$(ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" 'printf %s "$HOME"')"
           APP_DIR="${VM_APP_DIR:-${REMOTE_HOME}/CESIZen}"
-
-          ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" "
-            set -euo pipefail
-            mkdir -p '${APP_DIR}' || {
-              echo 'Directory not writable. Use a path under \$HOME or grant access.' >&2
-              exit 1
-            }
-          "
-
+          ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" "mkdir -p '${APP_DIR}'"
           rsync -az \
             -e "ssh -i ~/.ssh/id_rsa -p ${VM_PORT} -o StrictHostKeyChecking=accept-new" \
             ./docker-compose.prod.yml "${VM_USER}@${VM_HOST}:${APP_DIR}/"
@@ -157,6 +148,8 @@ jobs:
           VM_USER: ${{ secrets.AZURE_VM_USER }}
           VM_PORT: ${{ secrets.AZURE_VM_PORT || '22' }}
           VM_APP_DIR: ${{ secrets.AZURE_APP_DIR || '' }}
+          BACKAPI_IMAGE: ${{ steps.tags.outputs.BACKAPI_IMAGE }}
+          ADMIN_PANEL_IMAGE: ${{ steps.tags.outputs.ADMIN_PANEL_IMAGE }}
         run: |
           set -euo pipefail
           REMOTE_HOME="$(ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" 'printf %s "$HOME"')"
