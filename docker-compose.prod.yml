@@ -10,12 +10,22 @@ services:
       - --providers.docker.endpoint=unix:///var/run/docker.sock
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --entrypoints.websecure.address=:443
       - --entrypoints.traefik.address=:8080
+      - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
     ports:
       - "80:80"
+      - "443:443"
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt_data:/letsencrypt
     networks:
       - internal
 
@@ -41,7 +51,7 @@ services:
       - internal
 
   backapi:
-    image: ghcr.io/BoRomain/cesizen-backapi:latest
+    image: ${BACKAPI_IMAGE:-ghcr.io/BoRomain/cesizen-backapi:latest}
     container_name: cesizen-backapi-prod
     restart: unless-stopped
     env_file:
@@ -58,7 +68,9 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.cesizen-backapi.rule=Host(`api.localhost`)
-      - traefik.http.routers.cesizen-backapi.entrypoints=web
+      - traefik.http.routers.cesizen-backapi.entrypoints=websecure
+      - traefik.http.routers.cesizen-backapi.tls=true
+      - traefik.http.routers.cesizen-backapi.tls.certresolver=letsencrypt
       - traefik.http.services.cesizen-backapi.loadbalancer.server.port=3000
     command: >
       sh -c "npx prisma migrate deploy &&
@@ -68,7 +80,7 @@ services:
       - internal
 
   admin-panel:
-    image: ghcr.io/BoRomain/cesizen-admin-panel:latest
+    image: ${ADMIN_PANEL_IMAGE:-ghcr.io/BoRomain/cesizen-admin-panel:latest}
     container_name: cesizen-admin-panel-prod
     restart: unless-stopped
     environment:
@@ -78,13 +90,16 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.cesizen-admin-panel.rule=Host(`admin.localhost`)
-      - traefik.http.routers.cesizen-admin-panel.entrypoints=web
+      - traefik.http.routers.cesizen-admin-panel.entrypoints=websecure
+      - traefik.http.routers.cesizen-admin-panel.tls=true
+      - traefik.http.routers.cesizen-admin-panel.tls.certresolver=letsencrypt
       - traefik.http.services.cesizen-admin-panel.loadbalancer.server.port=5173
     networks:
       - internal
 
 volumes:
   postgres_data:
+  letsencrypt_data:
 
 networks:
   internal:
