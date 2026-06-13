@@ -150,6 +150,7 @@ jobs:
           VM_APP_DIR: ${{ secrets.AZURE_APP_DIR || '' }}
           BACKAPI_IMAGE: ${{ steps.tags.outputs.BACKAPI_IMAGE }}
           ADMIN_PANEL_IMAGE: ${{ steps.tags.outputs.ADMIN_PANEL_IMAGE }}
+          LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
         run: |
           set -euo pipefail
           REMOTE_HOME="$(ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" 'printf %s "$HOME"')"
@@ -158,8 +159,11 @@ jobs:
           ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" "
             cd '${APP_DIR}' && \
             echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin && \
-            BACKAPI_IMAGE=${BACKAPI_IMAGE} ADMIN_PANEL_IMAGE=${ADMIN_PANEL_IMAGE} \
-              docker compose -f docker-compose.prod.yml --env-file .env pull && \
+            export BACKAPI_IMAGE='${BACKAPI_IMAGE}' && \
+            export ADMIN_PANEL_IMAGE='${ADMIN_PANEL_IMAGE}' && \
+            export LETSENCRYPT_EMAIL='${LETSENCRYPT_EMAIL}' && \
+            docker compose -f docker-compose.prod.yml --env-file .env config && \
+            docker compose -f docker-compose.prod.yml --env-file .env pull backapi admin-panel && \
             docker compose -f docker-compose.prod.yml --env-file .env up -d --remove-orphans && \
             docker image prune -f
           "
