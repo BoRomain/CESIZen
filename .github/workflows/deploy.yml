@@ -34,6 +34,9 @@ jobs:
             image_suffix: cesizen-admin-panel
             build_args: |
               VITE_API_URL=http://api.localhost
+    outputs:
+      backapi-sha: ${{ steps.vars.outputs.SHA_TAG }}
+      admin-panel-sha: ${{ steps.vars.outputs.SHA_TAG }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -70,6 +73,25 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Set image SHA output
+        id: vars
+        run: |
+          # The metadata action generates tags including the SHA tag
+          # We'll use the first SHA tag (short format) as our image version
+          echo "tags=${{ steps.meta.outputs.tags }}"
+          # Convert tags string to array and find the SHA tag (7 hex chars)
+          IFS=',' read -ra TAG_ARRAY <<< "${{ steps.meta.outputs.tags }}"
+          for tag in "${TAG_ARRAY[@]}"; do
+            if [[ "$tag" =~ ^[a-f0-9]{7}$ ]]; then
+              echo "SHA_TAG=$tag" >> $GITHUB_OUTPUT
+              break
+            fi
+          done
+          # Fallback: if no SHA tag found, use the short SHA from git
+          if [ -z "$SHA_TAG" ]; then
+            echo "SHA_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          fi
+
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
@@ -77,8 +99,8 @@ jobs:
       contents: read
 
     env:
-      BACKAPI_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/cesizen-backapi:latest
-      ADMIN_PANEL_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/cesizen-admin-panel:latest
+      BACKAPI_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/cesizen-backapi:${{ needs.build-and-push.outputs.backapi-sha }}
+      ADMIN_PANEL_IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/cesizen-admin-panel:${{ needs.build-and-push.outputs.admin-panel-sha }}
 
     steps:
       - name: Checkout repository
@@ -132,7 +154,10 @@ jobs:
           ssh -i ~/.ssh/id_rsa -p "$PORT" "${USER}@${HOST}" "
             cd '${APP_DIR}' && \
             echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin && \
-            docker compose -f docker-compose.prod.yml --env-file .env pull && \
+            echo \"Deploying BackAPI image: $BACKAPI_IMAGE\" && \
+            echo \"Deploying Admin Panel image: $ADMIN_PANEL_IMAGE\" && \
+            # Use the specific image tags that were just built and pushed
+            BACKAPI_IMAGE=${BACKAPI_IMAGE} ADMIN_PANEL_IMAGE=${ADMIN_PANEL_IMAGE} docker compose -f docker-compose.prod.yml --env-file .env pull && \
             docker compose -f docker-compose.prod.yml --env-file .env up -d --remove-orphans && \
             docker image prune -f
           "
