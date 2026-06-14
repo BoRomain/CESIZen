@@ -8,7 +8,7 @@ import axios from "../utils/axios";
 import User from "../class/User";
 import Select from "../components/select";
 import Checkbox from "../components/checkbox";
-import { useSnackbar } from "../hooks/useSnackbar";
+import { useSnackbar } from "../contexts/useSnackbar";
 
 export default function CreateUser() {
   const navigate = useNavigate();
@@ -83,12 +83,7 @@ export default function CreateUser() {
           />
         </div>
         <div className="flex justify-end">
-          <Button
-            text="Créer"
-            onClick={handleSubmit}
-            loading={loading}
-            icon={Check}
-          />
+          <Button text="Créer" onClick={handleSubmit} loading={loading} icon={Check} />
         </div>
       </div>
     </Box>

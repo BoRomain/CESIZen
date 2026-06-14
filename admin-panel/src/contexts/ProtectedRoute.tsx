@@ -1,6 +1,6 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { Navigate } from "react-router-dom";
-import { useUser } from "./UserProviter"; // Vérifie l'orthographe de "Provider" ;)
+import { useUser } from "./UseUser";
 import axios from "../utils/axios";
 import type User from "../class/User";
 
@@ -28,26 +28,17 @@ export const ProtectedRoute = ({ children }: Props) => {
   const [isLoading, setIsLoading] = useState(!user);
 
   useEffect(() => {
-    let isActive = true;
+    if (user) return;
 
-    if (user) {
-      setIsLoading(false);
-      return () => {
-        isActive = false;
-      };
-    }
+    let isActive = true;
 
     fetchCurrentUser()
       .then((userData) => {
-        if (isActive) {
-          setUser(userData);
-        }
+        if (isActive) setUser(userData);
       })
       .catch(() => {})
       .finally(() => {
-        if (isActive) {
-          setIsLoading(false);
-        }
+        if (isActive) setIsLoading(false);
       });
 
     return () => {

@@ -12,7 +12,7 @@ import InfosList from "./routes/infosList.tsx";
 import ActivitiesList from "./routes/activitiesList.tsx";
 import CreateUser from "./routes/createUser.tsx";
 import ModifyUser from "./routes/modifyUser.tsx";
-import { SnackbarProvider } from "./hooks/useSnackbar.tsx";
+import { SnackbarProvider } from "./contexts/SnackbarProvider.tsx";
 import CreateInfo from "./routes/createInfo.tsx";
 import ModifyInfo from "./routes/modifyInfo.tsx";
 import CreateActivity from "./routes/createActivity.tsx";

@@ -6,10 +6,10 @@ import TextField from "../components/textField";
 import Button from "../components/button";
 import axios from "../utils/axios";
 import Checkbox from "../components/checkbox";
-import { useSnackbar } from "../hooks/useSnackbar";
+import { useSnackbar } from "../contexts/useSnackbar";
 import Information from "../class/Information";
 import TextArea from "../components/textArea";
-import { useUser } from "../contexts/UserProviter";
+import { useUser } from "../contexts/UseUser";
 
 export default function CreateInfo() {
   const navigate = useNavigate();
@@ -50,9 +50,7 @@ export default function CreateInfo() {
           <TextField
             text="Titre"
             value={information.titre}
-            onChange={(e) =>
-              setInformation({ ...information, titre: e.target.value })
-            }
+            onChange={(e) => setInformation({ ...information, titre: e.target.value })}
           />
           <TextField
             text="Catégorie"
@@ -71,33 +69,22 @@ export default function CreateInfo() {
           <TextField
             text="Image (URL)"
             value={information.image}
-            onChange={(e) =>
-              setInformation({ ...information, image: e.target.value })
-            }
+            onChange={(e) => setInformation({ ...information, image: e.target.value })}
           />
           <TextArea
             text="Texte"
             value={information.texte}
-            onChange={(e) =>
-              setInformation({ ...information, texte: e.target.value })
-            }
+            onChange={(e) => setInformation({ ...information, texte: e.target.value })}
           />
           <Checkbox
             text="Actif"
             checked={information.status}
-            onChange={(e) =>
-              setInformation({ ...information, status: e.target.checked })
-            }
+            onChange={(e) => setInformation({ ...information, status: e.target.checked })}
             className="w-fit"
           />
         </div>
         <div className="flex justify-end">
-          <Button
-            text="Créer"
-            onClick={handleSubmit}
-            loading={loading}
-            icon={Check}
-          />
+          <Button text="Créer" onClick={handleSubmit} loading={loading} icon={Check} />
         </div>
       </div>
     </Box>

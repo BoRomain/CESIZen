@@ -30,6 +30,7 @@ export default function InfosList() {
   const handleSearchInformations = useMemo(
     () =>
       debounce((filter: InformationFilter) => {
+        setLoading(true);
         axios
           .get("/information", { params: filter })
           .then((res) => {
@@ -44,7 +45,6 @@ export default function InfosList() {
   );
 
   useEffect(() => {
-    setLoading(true);
     handleSearchInformations(filter);
   }, [filter]);
 

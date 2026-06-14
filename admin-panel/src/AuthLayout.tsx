@@ -7,7 +7,7 @@ import logo1 from "./svg/CESIZen logo1.svg";
 import logo2 from "./svg/CESIZen logo2.svg";
 import axios from "./utils/axios";
 import { useNavigate } from "react-router-dom";
-import { useSnackbar } from "./hooks/useSnackbar";
+import { useSnackbar } from "./contexts/useSnackbar";
 
 export default function AuthLayout() {
   const navigate = useNavigate();
@@ -54,12 +54,7 @@ export default function AuthLayout() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button
-            text="Se connecter"
-            icon={LogIn}
-            type="submit"
-            loading={loading}
-          />
+          <Button text="Se connecter" icon={LogIn} type="submit" loading={loading} />
         </form>
       </Box>
     </div>

@@ -9,7 +9,7 @@ import User from "../class/User";
 import Select from "../components/select";
 import Checkbox from "../components/checkbox";
 import Loading from "../components/loading";
-import { useSnackbar } from "../hooks/useSnackbar";
+import { useSnackbar } from "../contexts/useSnackbar";
 
 export default function ModifyUser() {
   const navigate = useNavigate();
@@ -18,25 +18,13 @@ export default function ModifyUser() {
   const [user, setUser] = useState<User>(new User());
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setLoading(true);
-    axios
-      .get(`/utilisateur/${id}`)
-      .then((res) => {
-        setUser(res.data);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [id]);
-
   const handleSubmit = () => {
     setLoading(true);
-    const { password, ...userWithoutPassword } = user;
+    const { ...userWithoutPassword } = user;
     axios
       .put(`/utilisateur/update/${id}`, userWithoutPassword)
       .then(() => {
-        showMessage("Utilisateur modifié", "success");
+        showMessage("Utilisateur modifié", "success");
         navigate("/main/users");
       })
       .catch((err) => {
@@ -46,6 +34,20 @@ export default function ModifyUser() {
         setLoading(false);
       });
   };
+
+  useEffect(() => {
+    axios
+      .get(`/utilisateur/${id}`)
+      .then((res) => {
+        setUser(res.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [id]);
 
   if (loading) {
     return (
@@ -100,12 +102,7 @@ export default function ModifyUser() {
           />
         </div>
         <div className="flex justify-end">
-          <Button
-            text="Modifier"
-            onClick={handleSubmit}
-            loading={loading}
-            icon={Check}
-          />
+          <Button text="Modifier" onClick={handleSubmit} loading={loading} icon={Check} />
         </div>
       </div>
     </Box>

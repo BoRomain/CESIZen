@@ -13,6 +13,11 @@ type DonutChartProps = {
   totalLabel?: string;
 };
 
+type SegmentWithOffset = DonutChartSegment & {
+  strokeLength: number;
+  strokeDashoffset: number;
+};
+
 export default function DonutChart({
   title,
   segments,
@@ -30,7 +35,15 @@ export default function DonutChart({
   const radius = (120 - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
 
-  let cumulativeLength = 0;
+  const segmentsWithOffsets = safeSegments
+    .slice()
+    .reverse()
+    .reduce<SegmentWithOffset[]>((acc, segment) => {
+      const prev = acc[acc.length - 1];
+      const consumed = prev ? -prev.strokeDashoffset + prev.strokeLength : 0;
+      const strokeLength = total > 0 ? (segment.value / total) * circumference : 0;
+      return [...acc, { ...segment, strokeLength, strokeDashoffset: -consumed }];
+    }, []);
 
   return (
     <div className={`bg-white p-4 rounded-lg shadow ${className}`.trim()}>
@@ -51,28 +64,21 @@ export default function DonutChart({
             stroke="#e5e7eb"
             strokeWidth={strokeWidth}
           />
-          {safeSegments.reverse().map((segment) => {
-            const strokeLength =
-              total > 0 ? (segment.value / total) * circumference : 0;
-            const strokeDashoffset = -cumulativeLength;
-            cumulativeLength += strokeLength;
-
-            return (
-              <circle
-                key={segment.label}
-                cx="60"
-                cy="60"
-                r={radius}
-                fill="none"
-                stroke={segment.color}
-                strokeWidth={strokeWidth}
-                strokeDasharray={`${strokeLength} ${circumference}`}
-                strokeDashoffset={strokeDashoffset}
-                strokeLinecap="round"
-                transform="rotate(-90 60 60)"
-              />
-            );
-          })}
+          {segmentsWithOffsets.map((segment) => (
+            <circle
+              key={segment.label}
+              cx="60"
+              cy="60"
+              r={radius}
+              fill="none"
+              stroke={segment.color}
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${segment.strokeLength} ${circumference}`}
+              strokeDashoffset={segment.strokeDashoffset}
+              strokeLinecap="round"
+              transform="rotate(-90 60 60)"
+            />
+          ))}
           <text
             x="60"
             y="56"
@@ -81,32 +87,30 @@ export default function DonutChart({
           >
             {total}
           </text>
-          <text
-            x="60"
-            y="72"
-            textAnchor="middle"
-            className="fill-gray-500 text-[10px]"
-          >
+          <text x="60" y="72" textAnchor="middle" className="fill-gray-500 text-[10px]">
             {totalLabel}
           </text>
         </svg>
 
         <div className="flex flex-col gap-2 text-sm">
-          {safeSegments.reverse().map((segment) => {
-            const percentage =
-              total > 0 ? Math.round((segment.value / total) * 100) : 0;
-            return (
-              <div key={segment.label} className="flex items-center gap-2">
-                <span
-                  className="inline-block h-3 w-3 rounded-full"
-                  style={{ backgroundColor: segment.color }}
-                />
-                <span>
-                  {segment.label}: {segment.value} ({percentage}%)
-                </span>
-              </div>
-            );
-          })}
+          {segmentsWithOffsets
+            .slice()
+            .reverse()
+            .map((segment) => {
+              const percentage =
+                total > 0 ? Math.round((segment.value / total) * 100) : 0;
+              return (
+                <div key={segment.label} className="flex items-center gap-2">
+                  <span
+                    className="inline-block h-3 w-3 rounded-full"
+                    style={{ backgroundColor: segment.color }}
+                  />
+                  <span>
+                    {segment.label}: {segment.value} ({percentage}%)
+                  </span>
+                </div>
+              );
+            })}
         </div>
       </div>
     </div>

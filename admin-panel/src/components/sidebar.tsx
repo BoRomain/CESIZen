@@ -10,7 +10,7 @@ import {
   LogOut,
 } from "lucide-react";
 import logo2 from "../svg/CESIZen logo2.svg";
-import { useUser } from "../contexts/UserProviter";
+import { useUser } from "../contexts/UseUser";
 import axios from "../utils/axios";
 
 const Sidebar = () => {

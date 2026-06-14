@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Check } from "lucide-react";
 import Box from "../components/box";
@@ -6,26 +6,33 @@ import TextField from "../components/textField";
 import Button from "../components/button";
 import axios from "../utils/axios";
 import Checkbox from "../components/checkbox";
-import { useSnackbar } from "../hooks/useSnackbar";
+import { useSnackbar } from "../contexts/useSnackbar";
 import Information from "../class/Information";
 import TextArea from "../components/textArea";
 import Loading from "../components/loading";
-import { useUser } from "../contexts/UserProviter";
+import { useUser } from "../contexts/UseUser";
 
 export default function ModifyInfo() {
   const navigate = useNavigate();
   const { user } = useUser();
   const { id } = useParams();
   const { showMessage } = useSnackbar();
+  const showMessageRef = useRef(showMessage);
   const [information, setInformation] = useState<Information>();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
+    showMessageRef.current = showMessage;
+  }, [showMessage]);
+
+  useEffect(() => {
     axios
       .get(`/information/${id}`)
       .then((res) => {
         setInformation(res.data);
+      })
+      .catch(() => {
+        showMessageRef.current("Une erreur est survenue", "error");
       })
       .finally(() => {
         setLoading(false);
@@ -40,7 +47,7 @@ export default function ModifyInfo() {
         navigate("/main/infos");
       })
       .catch(() => {
-        showMessage("Une erreur est survenue", "error");
+        showMessageRef.current("Une erreur est survenue", "error");
       })
       .finally(() => {
         setLoading(false);
@@ -71,9 +78,7 @@ export default function ModifyInfo() {
           <TextField
             text="Titre"
             value={information.titre}
-            onChange={(e) =>
-              setInformation({ ...information, titre: e.target.value })
-            }
+            onChange={(e) => setInformation({ ...information, titre: e.target.value })}
           />
           <TextField
             text="Catégorie"
@@ -92,34 +97,23 @@ export default function ModifyInfo() {
           <TextField
             text="Image (URL)"
             value={information.image}
-            onChange={(e) =>
-              setInformation({ ...information, image: e.target.value })
-            }
+            onChange={(e) => setInformation({ ...information, image: e.target.value })}
           />
           <TextArea
             text="Texte"
             value={information.texte}
-            onChange={(e) =>
-              setInformation({ ...information, texte: e.target.value })
-            }
+            onChange={(e) => setInformation({ ...information, texte: e.target.value })}
             className="col-span-2"
           />
           <Checkbox
             text="Actif"
             checked={information.status}
-            onChange={(e) =>
-              setInformation({ ...information, status: e.target.checked })
-            }
+            onChange={(e) => setInformation({ ...information, status: e.target.checked })}
             className="w-fit"
           />
         </div>
         <div className="flex justify-end">
-          <Button
-            text="Modifier"
-            onClick={handleSubmit}
-            loading={loading}
-            icon={Check}
-          />
+          <Button text="Modifier" onClick={handleSubmit} loading={loading} icon={Check} />
         </div>
       </div>
     </Box>

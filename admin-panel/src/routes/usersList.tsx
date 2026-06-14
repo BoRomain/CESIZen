@@ -29,6 +29,7 @@ export default function UsersList() {
   const handleSearchUsers = useMemo(
     () =>
       debounce((filter: UserFilter) => {
+        setLoading(true);
         axios
           .get("/utilisateur", { params: filter })
           .then((res) => {
@@ -43,18 +44,15 @@ export default function UsersList() {
   );
 
   useEffect(() => {
-    setLoading(true);
     handleSearchUsers(filter);
-  }, [filter]);
+  }, [filter, handleSearchUsers]);
 
   function handleEdit(id: number) {
     navigate(`/main/users/edit/${id}`);
   }
 
   function handleDelete(id: number) {
-    if (
-      window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")
-    ) {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
       axios.delete(`/utilisateur/delete/${id}`).then(() => {
         handleSearchUsers(filter);
       });

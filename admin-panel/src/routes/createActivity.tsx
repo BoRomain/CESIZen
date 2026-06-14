@@ -6,8 +6,8 @@ import TextField from "../components/textField";
 import Button from "../components/button";
 import axios from "../utils/axios";
 import Checkbox from "../components/checkbox";
-import { useSnackbar } from "../hooks/useSnackbar";
-import { useUser } from "../contexts/UserProviter";
+import { useSnackbar } from "../contexts/useSnackbar";
+import { useUser } from "../contexts/UseUser";
 import Activity from "../class/Activity";
 
 export default function CreateActivity() {
@@ -49,16 +49,12 @@ export default function CreateActivity() {
           <TextField
             text="Titre"
             value={activity.titre}
-            onChange={(e) =>
-              setActivity({ ...activity, titre: e.target.value })
-            }
+            onChange={(e) => setActivity({ ...activity, titre: e.target.value })}
           />
           <TextField
             text="Description"
             value={activity.description}
-            onChange={(e) =>
-              setActivity({ ...activity, description: e.target.value })
-            }
+            onChange={(e) => setActivity({ ...activity, description: e.target.value })}
           />
           <TextField
             text="Lieu"
@@ -89,19 +85,12 @@ export default function CreateActivity() {
           <Checkbox
             text="Actif"
             checked={activity.status}
-            onChange={(e) =>
-              setActivity({ ...activity, status: e.target.checked })
-            }
+            onChange={(e) => setActivity({ ...activity, status: e.target.checked })}
             className="w-fit"
           />
         </div>
         <div className="flex justify-end">
-          <Button
-            text="Créer"
-            onClick={handleSubmit}
-            loading={loading}
-            icon={Check}
-          />
+          <Button text="Créer" onClick={handleSubmit} loading={loading} icon={Check} />
         </div>
       </div>
     </Box>

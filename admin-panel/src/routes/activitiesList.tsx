@@ -29,6 +29,7 @@ export default function ActivitiesList() {
   const handleSearchActivities = useMemo(
     () =>
       debounce((filter: ActivityFilter) => {
+        setLoading(true);
         axios
           .get("/activiteDetente", { params: filter })
           .then((res) => {
@@ -43,7 +44,6 @@ export default function ActivitiesList() {
   );
 
   useEffect(() => {
-    setLoading(true);
     handleSearchActivities(filter);
   }, [filter]);
 
@@ -113,9 +113,7 @@ export default function ActivitiesList() {
                       {new Date(activity.dateModification).toLocaleDateString()}
                     </TableCell>
                     <TableCell>{activity.nombreParticipant}</TableCell>
-                    <TableCell>
-                      {activity.status ? "Actif" : "Inactif"}
-                    </TableCell>
+                    <TableCell>{activity.status ? "Actif" : "Inactif"}</TableCell>
                     <TableCell>
                       <ButtonIcon
                         title="Modifier"
