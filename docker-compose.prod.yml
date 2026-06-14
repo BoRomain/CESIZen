@@ -19,6 +19,8 @@ services:
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
     ports:
       - "80:80"
       - "443:443"
@@ -108,11 +110,11 @@ services:
       - "5173:5173"
     labels:
       - traefik.enable=true
+      # Router HTTP → redirect vers HTTPS
       - traefik.http.routers.cesizen-admin-panel.rule=Host(`admin.cesizen.com`)
       - traefik.http.routers.cesizen-admin-panel.entrypoints=web
-      - traefik.http.routers.cesizen-admin-panel.middlewares=cesizen-admin-panel-redirect
-      - traefik.http.middlewares.cesizen-admin-panel-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.cesizen-admin-panel-redirect.redirectscheme.permanent=true
+      - traefik.http.routers.cesizen-admin-panel.middlewares=redirect-to-https@docker
+      # Router HTTPS
       - traefik.http.routers.cesizen-admin-panel-secure.rule=Host(`admin.cesizen.com`)
       - traefik.http.routers.cesizen-admin-panel-secure.entrypoints=websecure
       - traefik.http.routers.cesizen-admin-panel-secure.service=cesizen-admin-panel
