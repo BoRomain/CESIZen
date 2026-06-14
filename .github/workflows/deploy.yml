@@ -35,7 +35,7 @@ jobs:
             dockerfile: ./admin-panel/Dockerfile
             image_suffix: cesizen-admin-panel
             build_args: |
-              VITE_API_URL=http://api.localhost
+              VITE_API_URL=https://api.cesizen.com
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
