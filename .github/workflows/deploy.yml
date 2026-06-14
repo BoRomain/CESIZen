@@ -18,6 +18,37 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAMESPACE: boromain
 jobs:
+  lint:
+    name: Lint ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: BackAPI
+            path: BackAPI
+          - service: admin-panel
+            path: admin-panel
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.path }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.path }}
+        run: npm ci
+
+      - name: Run lint
+        working-directory: ${{ matrix.path }}
+        run: npm run lint
+
   build-and-push:
     name: Build and push ${{ matrix.service }}
     runs-on: ubuntu-latest
@@ -92,7 +123,7 @@ jobs:
           fi
 
   deploy:
-    needs: build-and-push
+    needs: [lint, build-and-push]
     runs-on: ubuntu-latest
     permissions:
       contents: read
