@@ -60,7 +60,7 @@ services:
         condition: service_healthy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.cesizen-backapi.rule=Host(`dev.api.localhost`)
+      - traefik.http.routers.cesizen-backapi.rule=Host(`dev.api.cesizen-romainb.com`)
       - traefik.http.routers.cesizen-backapi.entrypoints=web
       - traefik.http.services.cesizen-backapi.loadbalancer.server.port=3000
     command: >
@@ -75,17 +75,17 @@ services:
     container_name: cesizen-admin-panel-dev
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://dev.api.localhost
+      VITE_API_URL: http://dev.api.cesizen-romainb.com
     build:
       context: ./admin-panel
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://dev.api.localhost
+        VITE_API_URL: http://dev.api.cesizen-romainb.com
     ports:
       - "5173:5173"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.cesizen-admin-panel.rule=Host(`dev.admin.localhost`)
+      - traefik.http.routers.cesizen-admin-panel.rule=Host(`dev.admin.cesizen-romainb.com`)
       - traefik.http.routers.cesizen-admin-panel.entrypoints=web
       - traefik.http.services.cesizen-admin-panel.loadbalancer.server.port=5173
     networks:
