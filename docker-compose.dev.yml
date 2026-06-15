@@ -4,17 +4,13 @@ services:
     container_name: cesizen-traefik-dev
     restart: unless-stopped
     command:
-      - --api.dashboard=true
       - --api.insecure=true
-      - --providers.docker=true
-      - --providers.docker.endpoint=unix:///var/run/docker.sock
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-      - --entrypoints.traefik.address=:8080
+      - --configFile=/etc/traefik/traefik.yml
     ports:
       - "80:80"
       - "8080:8080"
     volumes:
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - internal
