@@ -97,7 +97,7 @@ jobs:
             dockerfile: ./admin-panel/Dockerfile
             image_suffix: cesizen-admin-panel
             build_args: |
-              VITE_API_URL=https://api.cesizen-romainb.com
+              VITE_API_URL=https://api.cesizen-romainb.duckdns.org
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
