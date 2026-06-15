@@ -1,5 +1,4 @@
 import { RefreshTokenModel } from "./RefreshTokenModel.js";
-import { v4 as uuidv4 } from "uuid";
 export class UtilisateurModel {
   id: number;
   nom: string;

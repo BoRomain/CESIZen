@@ -16,7 +16,7 @@ export const verifyAccessToken = (token: string) => {
     if (!ACCESS_SECRET) throw new Error("Secret missing");
 
     return jwt.verify(token, ACCESS_SECRET) as jwt.JwtPayload;
-  } catch (error) {
+  } catch {
     return undefined;
   }
 };
@@ -25,7 +25,7 @@ export const verifyRefreshToken = (token: string) => {
   try {
     if (!REFRESH_SECRET) throw new Error("Secret missing");
     return jwt.verify(token, REFRESH_SECRET) as jwt.JwtPayload;
-  } catch (error) {
+  } catch {
     return undefined;
   }
 };

@@ -16,11 +16,33 @@ jest.mock("../database.js", () => ({
 
 import prisma from "../database.js";
 import activitiesRouter from "../routes/ActiviteDetente.js";
+import cookieParser from "cookie-parser";
+
+interface PrismaActiviteDetenteMock {
+  findMany: jest.Mock;
+  findUnique: jest.Mock;
+  findUniqueOrThrow: jest.Mock;
+  create: jest.Mock;
+  update: jest.Mock;
+}
+
+interface PrismaRefreshTokenMock {
+  deleteMany: jest.Mock;
+  findUniqueOrThrow: jest.Mock;
+}
+
+interface PrismaMock {
+  activiteDetente: PrismaActiviteDetenteMock;
+  refreshToken: PrismaRefreshTokenMock;
+}
+
+const prismaMock = prisma as unknown as PrismaMock;
 
 const buildApp = () => {
   const app = express();
   app.use(express.json());
-  app.use("/activiteDetente", activitiesRouter);
+  app.use(cookieParser());
+  app.use("/information", activitiesRouter);
   return app;
 };
 
@@ -30,7 +52,6 @@ describe("ActiviteDetente routes", () => {
   });
 
   it("GET /activiteDetente returns filtered and paginated results", async () => {
-    const prismaMock = prisma as any;
     prismaMock.activiteDetente.findMany.mockResolvedValue([
       { id: 1, titre: "Respiration 4-7-8" },
     ]);
@@ -52,7 +73,6 @@ describe("ActiviteDetente routes", () => {
   });
 
   it("GET /activiteDetente/:id returns one activity", async () => {
-    const prismaMock = prisma as any;
     prismaMock.activiteDetente.findUnique.mockResolvedValue({
       id: 10,
       titre: "Meditation guidee",

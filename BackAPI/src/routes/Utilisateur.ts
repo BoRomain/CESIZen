@@ -1,9 +1,7 @@
 import { Router } from "express";
 import prisma from "../database.js";
-import bcrypt from "bcrypt";
 import "dotenv/config";
 import { UtilisateurModel } from "../class/UtilisateurModel.js";
-import jwt from "jsonwebtoken";
 import {
   AdminAuthMiddleware,
   AuthMiddleware,
@@ -70,7 +68,7 @@ router.get("/get-user", async (req, res) => {
       omit: { motDePasse: true },
     });
     res.json(user);
-  } catch (error) {
+  } catch {
     res.sendStatus(401);
   }
 });
@@ -108,7 +106,7 @@ router.post("/login", async (req, res) => {
     } else {
       throw new Error();
     }
-  } catch (error) {
+  } catch {
     res.status(400).json({ error: "Email ou mot de passe incorrect" });
   }
 });
@@ -135,7 +133,7 @@ router.post("/logout", async (req, res) => {
       where: { token: tokenFromCookie, utilisateurId: payload.id },
     });
     res.sendStatus(200);
-  } catch (err) {
+  } catch {
     res.sendStatus(400);
   }
 });
@@ -175,7 +173,7 @@ router.post("/refresh", async (req, res) => {
       sameSite: "none",
     });
     res.json({ accessToken: newAT });
-  } catch (err) {
+  } catch {
     return res.sendStatus(403);
   }
 });
@@ -189,7 +187,7 @@ router.post("/create", async (req, res) => {
 
   const hashedPassword = await hashPassword(password);
 
-  const user: UtilisateurModel = await prisma.utilisateur.create({
+  await prisma.utilisateur.create({
     data: {
       nom,
       prenom,
@@ -205,7 +203,7 @@ router.post("/create", async (req, res) => {
 router.put("/update/:id", AuthMiddleware, async (req, res) => {
   const { id } = req.params;
   const { nom, prenom, email, password, role, status } = req.body;
-  const user = await prisma.utilisateur.update({
+  await prisma.utilisateur.update({
     where: {
       id: Number(id),
     },
@@ -244,7 +242,7 @@ router.delete("/delete/:id", AdminAuthMiddleware, async (req, res) => {
 
 router.post("/disable/:id", AuthMiddleware, async (req, res) => {
   const { id } = req.params;
-  const user = await prisma.utilisateur.update({
+  await prisma.utilisateur.update({
     where: {
       id: Number(id),
     },
@@ -257,7 +255,7 @@ router.post("/disable/:id", AuthMiddleware, async (req, res) => {
 
 router.post("/enable/:id", AdminAuthMiddleware, async (req, res) => {
   const { id } = req.params;
-  const user = await prisma.utilisateur.update({
+  await prisma.utilisateur.update({
     where: {
       id: Number(id),
     },

@@ -1,12 +1,7 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 
-export function errorHandler(
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export function errorHandler(err: Request, res: Response) {
   let errorMessage = "Internal Server Error";
   let statusCode = 500;
 

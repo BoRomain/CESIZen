@@ -16,10 +16,32 @@ jest.mock("../database.js", () => ({
 
 import prisma from "../database.js";
 import informationRouter from "../routes/Information.js";
+import cookieParser from "cookie-parser";
+
+interface PrismaInformationMock {
+  findMany: jest.Mock;
+  findUnique: jest.Mock;
+  findUniqueOrThrow: jest.Mock;
+  create: jest.Mock;
+  update: jest.Mock;
+}
+
+interface PrismaRefreshTokenMock {
+  deleteMany: jest.Mock;
+  findUniqueOrThrow: jest.Mock;
+}
+
+interface PrismaMock {
+  information: PrismaInformationMock;
+  refreshToken: PrismaRefreshTokenMock;
+}
+
+const prismaMock = prisma as unknown as PrismaMock;
 
 const buildApp = () => {
   const app = express();
   app.use(express.json());
+  app.use(cookieParser());
   app.use("/information", informationRouter);
   return app;
 };
@@ -30,7 +52,6 @@ describe("Information routes", () => {
   });
 
   it("GET /information returns filtered and paginated results", async () => {
-    const prismaMock = prisma as any;
     prismaMock.information.findMany.mockResolvedValue([
       { id: 1, titre: "Stress", categorie: "Wellbeing" },
     ]);
@@ -53,7 +74,6 @@ describe("Information routes", () => {
   });
 
   it("GET /information/categories returns category names only", async () => {
-    const prismaMock = prisma as any;
     prismaMock.information.findMany.mockResolvedValue([
       { categorie: "Wellbeing", status: true },
       { categorie: "Nutrition", status: true },
@@ -66,7 +86,6 @@ describe("Information routes", () => {
   });
 
   it("GET /information/:id returns one information item", async () => {
-    const prismaMock = prisma as any;
     prismaMock.information.findUnique.mockResolvedValue({
       id: 10,
       titre: "Hydration",

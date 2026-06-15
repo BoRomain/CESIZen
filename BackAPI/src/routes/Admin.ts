@@ -1,9 +1,7 @@
 import { Router } from "express";
 import prisma from "../database.js";
-import bcrypt from "bcrypt";
 import "dotenv/config";
 import { UtilisateurModel } from "../class/UtilisateurModel.js";
-import jwt from "jsonwebtoken";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import { comparePassword } from "../utils/password.js";
 
@@ -43,7 +41,7 @@ router.post("/login", async (req, res) => {
     } else {
       throw new Error();
     }
-  } catch (error) {
+  } catch {
     res.status(400).json({ error: "Email ou mot de passe incorrect" });
   }
 });

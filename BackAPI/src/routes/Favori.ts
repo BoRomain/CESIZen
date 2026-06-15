@@ -1,10 +1,10 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import prisma from "../database.js";
 import { verifyAccessToken } from "../utils/token.js";
 
 const router = Router();
 
-const getUserId = (req: any, res: any): number | null => {
+const getUserId = (req: Request, res: Response): number | null => {
   const authHeader = req.headers["authorization"];
   const token = (authHeader && authHeader.split(" ")[1]) || "";
   if (!token) {

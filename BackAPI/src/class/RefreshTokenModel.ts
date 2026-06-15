@@ -1,5 +1,3 @@
-import { UtilisateurModel } from "./UtilisateurModel.js";
-
 export class RefreshTokenModel {
   id: number;
   utilisateurId: number;

@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { faker } from "@faker-js/faker";
 import * as bcrypt from "bcrypt";
 import prisma from "../src/database.js";

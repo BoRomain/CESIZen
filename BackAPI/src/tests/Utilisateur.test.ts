@@ -37,6 +37,26 @@ import * as passwordUtils from "../utils/password.js";
 import * as tokenUtils from "../utils/token.js";
 import utilisateurRouter from "../routes/Utilisateur.js";
 
+interface PrismaUtilisateurMock {
+  findMany: jest.Mock;
+  findUnique: jest.Mock;
+  findUniqueOrThrow: jest.Mock;
+  create: jest.Mock;
+  update: jest.Mock;
+}
+
+interface PrismaRefreshTokenMock {
+  deleteMany: jest.Mock;
+  findUniqueOrThrow: jest.Mock;
+}
+
+interface PrismaMock {
+  utilisateur: PrismaUtilisateurMock;
+  refreshToken: PrismaRefreshTokenMock;
+}
+
+const prismaMock = prisma as unknown as PrismaMock;
+
 const buildApp = () => {
   const app = express();
   app.use(express.json());
@@ -52,7 +72,6 @@ describe("Utilisateur routes", () => {
   });
 
   it("POST /utilisateur/login returns access token and sets refresh cookie", async () => {
-    const prismaMock = prisma as any;
     prismaMock.utilisateur.findUniqueOrThrow.mockResolvedValue({
       id: 1,
       role: "user",
@@ -80,7 +99,6 @@ describe("Utilisateur routes", () => {
   });
 
   it("POST /utilisateur/login returns 400 on invalid credentials", async () => {
-    const prismaMock = prisma as any;
     prismaMock.utilisateur.findUniqueOrThrow.mockResolvedValue({
       id: 1,
       role: "user",
@@ -97,7 +115,6 @@ describe("Utilisateur routes", () => {
   });
 
   it("GET /utilisateur/get-user returns the authenticated user", async () => {
-    const prismaMock = prisma as any;
     (tokenUtils.verifyAccessToken as jest.Mock).mockReturnValue({ id: 7 });
     prismaMock.utilisateur.findUniqueOrThrow.mockResolvedValue({
       id: 7,
@@ -117,7 +134,6 @@ describe("Utilisateur routes", () => {
   });
 
   it("PUT /utilisateur/update/:id returns 401 when access token is invalid", async () => {
-    const prismaMock = prisma as any;
     jest.spyOn(jwt, "verify").mockImplementation(() => {
       throw new Error("invalid token");
     });
@@ -132,8 +148,10 @@ describe("Utilisateur routes", () => {
   });
 
   it("PUT /utilisateur/update/:id updates user when access token is valid", async () => {
-    const prismaMock = prisma as any;
-    jest.spyOn(jwt, "verify").mockReturnValue({ id: 1, role: "user" } as any);
+    (jest.spyOn(jwt, "verify") as jest.SpyInstance).mockReturnValue({
+      id: 1,
+      role: "user",
+    });
     prismaMock.utilisateur.update.mockResolvedValue({ id: 1 });
 
     const response = await request(buildApp())
@@ -152,8 +170,10 @@ describe("Utilisateur routes", () => {
   });
 
   it("POST /utilisateur/enable/:id returns 401 for non-admin users", async () => {
-    const prismaMock = prisma as any;
-    jest.spyOn(jwt, "verify").mockReturnValue({ id: 1, role: "user" } as any);
+    (jest.spyOn(jwt, "verify") as jest.SpyInstance).mockReturnValue({
+      id: 1,
+      role: "user",
+    });
 
     const response = await request(buildApp())
       .post("/utilisateur/enable/1")
@@ -164,8 +184,10 @@ describe("Utilisateur routes", () => {
   });
 
   it("POST /utilisateur/enable/:id enables user for admin users", async () => {
-    const prismaMock = prisma as any;
-    jest.spyOn(jwt, "verify").mockReturnValue({ id: 99, role: "admin" } as any);
+    (jest.spyOn(jwt, "verify") as jest.SpyInstance).mockReturnValue({
+      id: 99,
+      role: "admin",
+    });
     prismaMock.utilisateur.update.mockResolvedValue({ id: 1, status: true });
 
     const response = await request(buildApp())
