@@ -203,6 +203,9 @@ jobs:
           rsync -az \
             -e "ssh -i ~/.ssh/id_rsa -p ${VM_PORT} -o StrictHostKeyChecking=accept-new" \
             ./docker-compose.prod.yml "${VM_USER}@${VM_HOST}:${APP_DIR}/"
+          rsync -az \
+            -e "ssh -i ~/.ssh/id_rsa -p ${VM_PORT} -o StrictHostKeyChecking=accept-new" \
+            ./traefik "${VM_USER}@${VM_HOST}:${APP_DIR}/"
 
       - name: Deploy images on Azure VM
         env:
