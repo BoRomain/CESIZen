@@ -99,10 +99,10 @@ services:
       - traefik.enable=true
       - traefik.http.routers.cesizen-admin-panel.rule=Host(`admin.cesizen-romainb.com`)
       - traefik.http.routers.cesizen-admin-panel.entrypoints=web
-      - traefik.http.routers.cesizen-admin-panel.middlewares=redirect-to-https@docker
+      - traefik.http.routers.cesizen-admin-panel.middlewares=cesizen-admin-panel-redirect
+      - traefik.http.middlewares.cesizen-admin-panel-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.cesizen-admin-panel-redirect.redirectscheme.permanent=true
       - traefik.http.routers.cesizen-admin-panel-secure.rule=Host(`admin.cesizen-romainb.com`)
-      - traefik.http.middlewares.cesizen-backapi-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.cesizen-backapi-redirect.redirectscheme.permanent=true
       - traefik.http.routers.cesizen-admin-panel-secure.entrypoints=websecure
       - traefik.http.routers.cesizen-admin-panel-secure.service=cesizen-admin-panel
       - traefik.http.routers.cesizen-admin-panel-secure.tls=true
