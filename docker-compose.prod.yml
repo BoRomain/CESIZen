@@ -5,7 +5,6 @@ services:
     restart: unless-stopped
     command:
       - --api.dashboard=true
-      - --api.insecure=true
       - --providers.docker=true
       - --providers.docker.endpoint=unix:///var/run/docker.sock
       - --providers.docker.exposedbydefault=false
@@ -14,17 +13,13 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.web.http.redirections.entrypoint.permanent=true
       - --entrypoints.websecure.address=:443
-      - --entrypoints.traefik.address=:8080
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - letsencrypt_data:/letsencrypt
@@ -39,8 +34,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -52,6 +45,22 @@ services:
     networks:
       - internal
 
+  migrate:
+    image: ${BACKAPI_IMAGE:-ghcr.io/boromain/cesizen-backapi:latest}
+    container_name: cesizen-migrate-prod
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma migrate deploy && npm run seed-dist"
+    networks:
+      - internal
+    restart: "no"
+
   backapi:
     image: ${BACKAPI_IMAGE:-ghcr.io/boromain/cesizen-backapi:latest}
     container_name: cesizen-backapi-prod
@@ -62,28 +71,18 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       ACCESS_SECRET: ${ACCESS_SECRET}
       REFRESH_SECRET: ${REFRESH_SECRET}
-    ports:
-      - "3000:3000"
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     labels:
       - traefik.enable=true
-      - traefik.http.routers.cesizen-backapi.rule=Host(`api.cesizen-romainb.com`)
-      - traefik.http.routers.cesizen-backapi.entrypoints=web
-      - traefik.http.routers.cesizen-backapi.middlewares=cesizen-backapi-redirect
-      - traefik.http.middlewares.cesizen-backapi-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.cesizen-backapi-redirect.redirectscheme.permanent=true
       - traefik.http.routers.cesizen-backapi-secure.rule=Host(`api.cesizen-romainb.com`)
       - traefik.http.routers.cesizen-backapi-secure.entrypoints=websecure
       - traefik.http.routers.cesizen-backapi-secure.service=cesizen-backapi
       - traefik.http.routers.cesizen-backapi-secure.tls=true
       - traefik.http.routers.cesizen-backapi-secure.tls.certresolver=letsencrypt
       - traefik.http.services.cesizen-backapi.loadbalancer.server.port=3000
-    command: >
-      sh -c "npx prisma migrate deploy &&
-             npm run seed-dist &&
-             node dist/src/app.js"
+    command: node dist/src/app.js
     networks:
       - internal
 
@@ -93,15 +92,14 @@ services:
     restart: unless-stopped
     environment:
       VITE_API_URL: https://api.cesizen-romainb.com
-    ports:
-      - "5173:5173"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5173 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     labels:
       - traefik.enable=true
-      - traefik.http.routers.cesizen-admin-panel.rule=Host(`admin.cesizen-romainb.com`)
-      - traefik.http.routers.cesizen-admin-panel.entrypoints=web
-      - traefik.http.routers.cesizen-admin-panel.middlewares=cesizen-admin-panel-redirect
-      - traefik.http.middlewares.cesizen-admin-panel-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.cesizen-admin-panel-redirect.redirectscheme.permanent=true
       - traefik.http.routers.cesizen-admin-panel-secure.rule=Host(`admin.cesizen-romainb.com`)
       - traefik.http.routers.cesizen-admin-panel-secure.entrypoints=websecure
       - traefik.http.routers.cesizen-admin-panel-secure.service=cesizen-admin-panel
