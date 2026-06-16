@@ -223,6 +223,10 @@ jobs:
 
           ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" "
             cd '${APP_DIR}' && \
+            if [ -d traefik/traefik.yml ]; then
+              echo 'ERROR: traefik/traefik.yml is a directory, removing...' >&2
+              rm -rf traefik/traefik.yml
+            fi && \
             echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin && \
             export BACKAPI_IMAGE='${BACKAPI_IMAGE}' && \
             export ADMIN_PANEL_IMAGE='${ADMIN_PANEL_IMAGE}' && \
