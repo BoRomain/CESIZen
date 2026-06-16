@@ -200,10 +200,10 @@ jobs:
           REMOTE_HOME="$(ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" 'printf %s "$HOME"')"
           APP_DIR="${VM_APP_DIR:-${REMOTE_HOME}/CESIZen}"
           ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" "mkdir -p '${APP_DIR}'"
-          rsync -az \
+          rsync -az --no-times --no-perms --no-owner --no-group \
             -e "ssh -i ~/.ssh/id_rsa -p ${VM_PORT} -o StrictHostKeyChecking=accept-new" \
             ./docker-compose.prod.yml "${VM_USER}@${VM_HOST}:${APP_DIR}/"
-          rsync -az \
+          rsync -az --no-times --no-perms --no-owner --no-group \
             -e "ssh -i ~/.ssh/id_rsa -p ${VM_PORT} -o StrictHostKeyChecking=accept-new" \
             ./traefik "${VM_USER}@${VM_HOST}:${APP_DIR}/"
 
