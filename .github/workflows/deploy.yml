@@ -1,7 +1,7 @@
 name: Deploy to Azure VM via GHCR
 
 on:
-  push:
+  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -17,6 +17,9 @@ concurrency:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAMESPACE: boromain
+  VM_PORT: ${{ secrets.AZURE_VM_PORT || '22' }}
+  VM_APP_DIR: ${{ secrets.AZURE_APP_DIR || '' }}
+
 jobs:
   lint:
     name: Lint ${{ matrix.service }}
@@ -98,6 +101,7 @@ jobs:
             image_suffix: cesizen-admin-panel
             build_args: |
               VITE_API_URL=https://api.cesizen-romainb.duckdns.org
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -116,7 +120,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/boromain/${{ matrix.image_suffix }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ matrix.image_suffix }}
           tags: |
             type=raw,value=latest
             type=ref,event=branch
@@ -134,25 +138,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Set image SHA output
-        id: vars
-        run: |
-          # The metadata action generates tags including the SHA tag
-          # We'll use the first SHA tag (short format) as our image version
-          echo "tags=${{ steps.meta.outputs.tags }}"
-          # Convert tags string to array and find the SHA tag (7 hex chars)
-          IFS=',' read -ra TAG_ARRAY <<< "${{ steps.meta.outputs.tags }}"
-          for tag in "${TAG_ARRAY[@]}"; do
-            if [[ "$tag" =~ ^[a-f0-9]{7}$ ]]; then
-              echo "SHA_TAG=$tag" >> $GITHUB_OUTPUT
-              break
-            fi
-          done
-          # Fallback: if no SHA tag found, use the short SHA from git
-          if [ -z "$SHA_TAG" ]; then
-            echo "SHA_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          fi
-
   deploy:
     needs: [lint, audit, build-and-push]
     runs-on: ubuntu-latest
@@ -164,71 +149,59 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Resolve image tags
-        id: tags
-        run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_OUTPUT
-          echo "BACKAPI_IMAGE=ghcr.io/boromain/cesizen-backapi:sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
-          echo "ADMIN_PANEL_IMAGE=ghcr.io/boromain/cesizen-admin-panel:sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
-
-      - name: Prepare SSH access
+      - name: Setup SSH
         env:
           VM_HOST: ${{ secrets.AZURE_VM_HOST }}
           VM_USER: ${{ secrets.AZURE_VM_USER }}
-          VM_PORT: ${{ secrets.AZURE_VM_PORT || '22' }}
         run: |
           set -euo pipefail
           if [[ -z "${VM_HOST}" || -z "${VM_USER}" ]]; then
-            echo "AZURE_VM_HOST and AZURE_VM_USER secrets are required." >&2
+            echo "::error::AZURE_VM_HOST and AZURE_VM_USER secrets are required."
             exit 1
           fi
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           printf '%s' "${{ secrets.AZURE_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p "${VM_PORT}" "${VM_HOST}" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${{ env.VM_PORT }}" "${VM_HOST}" >> ~/.ssh/known_hosts
 
-      - name: Sync Compose file to the VM
+      - name: Get short SHA
+        id: sha
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Sync files to VM
         env:
           VM_HOST: ${{ secrets.AZURE_VM_HOST }}
           VM_USER: ${{ secrets.AZURE_VM_USER }}
-          VM_PORT: ${{ secrets.AZURE_VM_PORT || '22' }}
-          VM_APP_DIR: ${{ secrets.AZURE_APP_DIR || '' }}
         run: |
           set -euo pipefail
-          REMOTE_HOME="$(ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" 'printf %s "$HOME"')"
-          APP_DIR="${VM_APP_DIR:-${REMOTE_HOME}/CESIZen}"
-          ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" "mkdir -p '${APP_DIR}'"
+          REMOTE_HOME=$(ssh -i ~/.ssh/id_rsa -p "${{ env.VM_PORT }}" "${VM_USER}@${VM_HOST}" 'printf %s "$HOME"')
+          APP_DIR="${{ env.VM_APP_DIR }:-${REMOTE_HOME}/CESIZen}"
+          ssh -i ~/.ssh/id_rsa -p "${{ env.VM_PORT }}" "${VM_USER}@${VM_HOST}" "mkdir -p '${APP_DIR}'"
+          
           rsync -az --no-times --no-perms --no-owner --no-group \
-            -e "ssh -i ~/.ssh/id_rsa -p ${VM_PORT} -o StrictHostKeyChecking=accept-new" \
-            ./docker-compose.prod.yml "${VM_USER}@${VM_HOST}:${APP_DIR}/"
-          rsync -az --no-times --no-perms --no-owner --no-group \
-            -e "ssh -i ~/.ssh/id_rsa -p ${VM_PORT} -o StrictHostKeyChecking=accept-new" \
-            ./traefik "${VM_USER}@${VM_HOST}:${APP_DIR}/"
+            -e "ssh -i ~/.ssh/id_rsa -p ${{ env.VM_PORT }} -o StrictHostKeyChecking=accept-new" \
+            ./docker-compose.prod.yml ./traefik/ "${VM_USER}@${VM_HOST}:${APP_DIR}/"
 
-      - name: Deploy images on Azure VM
+      - name: Deploy to VM
         env:
           VM_HOST: ${{ secrets.AZURE_VM_HOST }}
           VM_USER: ${{ secrets.AZURE_VM_USER }}
-          VM_PORT: ${{ secrets.AZURE_VM_PORT || '22' }}
-          VM_APP_DIR: ${{ secrets.AZURE_APP_DIR || '' }}
-          BACKAPI_IMAGE: ${{ steps.tags.outputs.BACKAPI_IMAGE }}
-          ADMIN_PANEL_IMAGE: ${{ steps.tags.outputs.ADMIN_PANEL_IMAGE }}
           LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
+          SHORT_SHA: ${{ steps.sha.outputs.SHORT_SHA }}
         run: |
           set -euo pipefail
-          REMOTE_HOME="$(ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" 'printf %s "$HOME"')"
-          APP_DIR="${VM_APP_DIR:-${REMOTE_HOME}/CESIZen}"
-
-          ssh -i ~/.ssh/id_rsa -p "${VM_PORT}" "${VM_USER}@${VM_HOST}" "
-            cd '${APP_DIR}' && \
-            echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin && \
-            export BACKAPI_IMAGE='${BACKAPI_IMAGE}' && \
-            export ADMIN_PANEL_IMAGE='${ADMIN_PANEL_IMAGE}' && \
-            export LETSENCRYPT_EMAIL='${LETSENCRYPT_EMAIL}' && \
-            docker compose -f docker-compose.prod.yml --env-file .env config && \
-            docker compose -f docker-compose.prod.yml --env-file .env pull backapi admin-panel && \
-            docker compose -f docker-compose.prod.yml --env-file .env up -d --remove-orphans && \
+          REMOTE_HOME=$(ssh -i ~/.ssh/id_rsa -p "${{ env.VM_PORT }}" "${VM_USER}@${VM_HOST}" 'printf %s "$HOME"')
+          APP_DIR="${{ env.VM_APP_DIR }:-${REMOTE_HOME}/CESIZen}"
+          ssh -i ~/.ssh/id_rsa -p "${{ env.VM_PORT }}" "${VM_USER}@${VM_HOST}" << ENDSSH
+            set -euo pipefail
+            cd "${APP_DIR}"
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            export BACKAPI_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/cesizen-backapi:sha-${SHORT_SHA}"
+            export ADMIN_PANEL_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/cesizen-admin-panel:sha-${SHORT_SHA}"
+            export LETSENCRYPT_EMAIL="${LETSENCRYPT_EMAIL}"
+            docker compose -f docker-compose.prod.yml --env-file .env config
+            docker compose -f docker-compose.prod.yml --env-file .env pull backapi admin-panel
+            docker compose -f docker-compose.prod.yml --env-file .env up -d --remove-orphans
             docker image prune -f
-          "
+          ENDSSH
