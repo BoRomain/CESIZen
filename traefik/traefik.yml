@@ -13,3 +13,14 @@ entryPoints:
     address: ":8080"
   websecure:
     address: ":443"
+
+log:
+  level: DEBUG
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: ${LETSENCRYPT_EMAIL}
+      storage: /letsencrypt/acme.json
+      httpChallenge:
+        entryPoint: web
