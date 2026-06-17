@@ -9,6 +9,11 @@ export async function AuthMiddleware(
   next: NextFunction,
 ) {
   try {
+    const authHeader = req.headers["authorization"];
+    const token = (authHeader && authHeader.split(" ")[1]) || "";
+
+    jwt.verify(token, ACCESS_SECRET) as jwt.JwtPayload;
+
     next();
   } catch {
     res.sendStatus(401);
