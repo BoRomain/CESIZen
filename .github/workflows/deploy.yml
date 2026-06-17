@@ -1,4 +1,4 @@
-name: Deploy to Azure VM via GHCR
+name: CI/CD
 
 on:
   pull_request:
@@ -83,8 +83,32 @@ jobs:
         working-directory: ${{ matrix.path }}
         run: npm audit --audit-level=critical --omit=dev
 
+  unit-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./BackAPI
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installation de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: Backapi/package-lock.json
+
+      - name: Installation des dépendances
+        run: npm ci
+
+      - name: Exécution des tests Jest
+        run: npm test
+
   build-and-push:
     name: Build and push ${{ matrix.service }}
+    needs: [lint, audit, unit-tests]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -139,7 +163,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    needs: [lint, audit, build-and-push]
+    needs: [build-and-push]
     runs-on: ubuntu-latest
     permissions:
       contents: read
