@@ -96,7 +96,7 @@ jobs:
       - name: Installation de Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 22
           cache: 'npm'
           cache-dependency-path: Backapi/package-lock.json
 
