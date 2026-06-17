@@ -208,7 +208,7 @@ jobs:
           
           rsync -az --no-times --no-perms --no-owner --no-group \
             -e "ssh -i ~/.ssh/id_rsa -p ${{ env.VM_PORT }} -o StrictHostKeyChecking=accept-new" \
-            ./docker-compose.prod.yml ./traefik/ "${VM_USER}@${VM_HOST}:${APP_DIR}/"
+            ./docker-compose.prod.yml ./traefik "${VM_USER}@${VM_HOST}:${APP_DIR}/"
 
       - name: Deploy to VM
         env:
