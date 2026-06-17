@@ -176,7 +176,7 @@ jobs:
         run: |
           set -euo pipefail
           REMOTE_HOME=$(ssh -i ~/.ssh/id_rsa -p "${{ env.VM_PORT }}" "${VM_USER}@${VM_HOST}" 'printf %s "$HOME"')
-          APP_DIR="${{ env.VM_APP_DIR }:-${REMOTE_HOME}/CESIZen}"
+          APP_DIR="${VM_APP_DIR:-${REMOTE_HOME}/CESIZen}"
           ssh -i ~/.ssh/id_rsa -p "${{ env.VM_PORT }}" "${VM_USER}@${VM_HOST}" "mkdir -p '${APP_DIR}'"
           
           rsync -az --no-times --no-perms --no-owner --no-group \
@@ -192,7 +192,7 @@ jobs:
         run: |
           set -euo pipefail
           REMOTE_HOME=$(ssh -i ~/.ssh/id_rsa -p "${{ env.VM_PORT }}" "${VM_USER}@${VM_HOST}" 'printf %s "$HOME"')
-          APP_DIR="${{ env.VM_APP_DIR }:-${REMOTE_HOME}/CESIZen}"
+          APP_DIR="${VM_APP_DIR:-${REMOTE_HOME}/CESIZen}"
           ssh -i ~/.ssh/id_rsa -p "${{ env.VM_PORT }}" "${VM_USER}@${VM_HOST}" << ENDSSH
             set -euo pipefail
             cd "${APP_DIR}"
