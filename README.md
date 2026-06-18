@@ -209,7 +209,92 @@ docker compose -f docker-compose.prod.yml up -d --no-deps
 
 > Le pipeline CI/CD effectue ces étapes automatiquement à chaque push sur `main`. Voir la section [CI/CD](#cicd).
 
+### Niveaux de criticité
+
+| Score | Niveau | Couleur | Traitement |
+|---|---|---|---|
+| 12–16 | Critique | 🔴 | Action immédiate requise |
+| 6–11 | Élevé | 🟠 | Plan d'action sous 48h |
+| 3–5 | Modéré | 🟡 | Surveillance renforcée |
+| 1–2 | Faible | 🟢 | Accepté / suivi régulier |
+
 ---
+
+## Matrice des risques
+
+### Risques de Sécurité
+
+| ID | Risque | P | I | Criticité | Niveau | Mesures de mitigation |
+|---|---|---|---|---|---|---|
+| SEC-01 | **Fuite de données personnelles (RGPD)** — accès non autorisé à la BDD | 2 | 4 | 8 | 🟠 | Chiffrement BDD, réseau Docker isolé, accès SSH restreint, audit trimestriel |
+| SEC-02 | **Injection SQL** — requête malveillante en BDD | 2 | 4 | 8 | 🟠 | ORM avec requêtes paramétrées, validation d'entrées, tests OWASP ZAP |
+| SEC-03 | **Attaque XSS** — injection de scripts dans les contenus | 3 | 3 | 9 | 🟠 | Échappement React, CSP stricte, sanitisation backend (validator.js) |
+| SEC-04 | **Brute force sur les comptes** | 3 | 2 | 6 | 🟠 | Rate limiting (5 essais / 15 min), bcrypt coût 12, alertes email |
+| SEC-05 | **Vol de token JWT** | 2 | 3 | 6 | 🟠 | Expiration courte (15 min), refresh token invalidable, HTTPS strict |
+| SEC-06 | **Attaque CSRF** | 2 | 3 | 6 | 🟠 | Tokens CSRF, SameSite=Strict, validation Origin |
+| SEC-07 | **Exposition de secrets dans le dépôt Git** | 2 | 4 | 8 | 🟠 | `.gitignore`, GitHub Secrets, scan GitGuardian |
+| SEC-08 | **Vulnérabilité dans une dépendance npm** | 3 | 2 | 6 | 🟠 | `npm audit` en CI, Dependabot, mise à jour hebdomadaire |
+| SEC-09 | **Attaque DDoS** | 2 | 3 | 6 | 🟠 | Rate limiting global Nginx, Cloudflare (si nécessaire) |
+| SEC-10 | **Certificat SSL expiré** | 1 | 3 | 3 | 🟡 | Renouvellement auto Certbot, monitoring Uptime Robot |
+
+### Risques d'Infrastructure
+
+| ID | Risque | P | I | Criticité | Niveau | Mesures de mitigation |
+|---|---|---|---|---|---|---|
+| INF-01 | **Panne du VPS** — serveur inaccessible | 2 | 4 | 8 | 🟠 | Snapshot régulier, procédure de restauration documentée, RTO < 2h |
+| INF-02 | **Saturation du disque** — espace insuffisant | 2 | 3 | 6 | 🟠 | Monitoring `df -h`, purge automatique des logs (> 30 jours) |
+| INF-03 | **IP dynamique non mise à jour (DuckDNS)** | 2 | 3 | 6 | 🟠 | Cron toutes les 5 min, log de mise à jour, alerte sur échec |
+| INF-04 | **Conteneur Docker en crash** | 2 | 3 | 6 | 🟠 | `restart: unless-stopped`, healthcheck, alertes Uptime Robot |
+| INF-05 | **Corruption de la base de données** | 1 | 4 | 4 | 🟡 | Backup quotidien (mysqldump), rétention 30 jours, test de restauration mensuel |
+| INF-06 | **Indisponibilité réseau hébergeur** | 1 | 4 | 4 | 🟡 | SLA hébergeur, monitoring externe (Uptime Robot) |
+| INF-07 | **Saturation de la RAM / CPU** | 2 | 2 | 4 | 🟡 | Limites mémoire Docker (`mem_limit`), monitoring des ressources |
+
+### Risques Applicatifs
+
+| ID | Risque | P | I | Criticité | Niveau | Mesures de mitigation |
+|---|---|---|---|---|---|---|
+| APP-01 | **Régression après déploiement** | 3 | 3 | 9 | 🟠 | Tests unitaires + E2E en CI, stratégie de rollback (tag `previous`) |
+| APP-02 | **Données utilisateurs corrompues suite à migration** | 2 | 3 | 6 | 🟠 | Scripts de migration versionnés, backup avant migration, tests sur staging |
+| APP-03 | **Accès non autorisé aux fonctions d'administration** | 2 | 4 | 8 | 🟠 | Vérification des rôles côté backend (middleware), tests d'autorisation |
+| APP-04 | **Upload de fichiers malveillants** | 2 | 3 | 6 | 🟠 | Validation MIME type, taille limitée (1MB), scan antivirus (ClamAV) |
+| APP-05 | **Fuite de données via les logs** | 2 | 3 | 6 | 🟠 | Pas d'email/password dans les logs, rotation + purge 30 jours |
+
+### Risques RGPD
+
+| ID | Risque | P | I | Criticité | Niveau | Mesures de mitigation |
+|---|---|---|---|---|---|---|
+| RGP-01 | **Non-respect du droit à l'effacement** | 2 | 4 | 8 | 🟠 | Fonctionnalité de suppression de compte avec anonymisation |
+| RGP-02 | **Absence de consentement explicite** | 2 | 3 | 6 | 🟠 | Bannière de consentement, cases non pré-cochées, CGU claires |
+| RGP-03 | **Non-notification CNIL en cas de violation** | 1 | 4 | 4 | 🟡 | Procédure documentée (notification < 72h), registre des incidents |
+| RGP-04 | **Transfert de données hors UE** | 1 | 3 | 3 | 🟡 | Hébergeur européen, pas de services tiers hors UE sans accord |
+
+### Risques Organisationnels
+
+| ID | Risque | P | I | Criticité | Niveau | Mesures de mitigation |
+|---|---|---|---|---|---|---|
+| ORG-01 | **Perte d'accès aux secrets (tokens, clés SSH)** | 2 | 4 | 8 | 🟠 | Coffre-fort de mots de passe (Bitwarden), rotation trimestrielle |
+| ORG-02 | **Absence d'un membre clé de l'équipe** | 2 | 3 | 6 | 🟠 | Documentation partagée, revue de code croisée, bus factor réduit |
+| ORG-03 | **Non-respect des délais de livraison** | 2 | 3 | 6 | 🟠 | Planning Kanban, points d'avancement quotidiens, priorisation |
+| ORG-04 | **Dépendance à un service tiers (DuckDNS)** | 2 | 3 | 6 | 🟠 | Alternative documentée (Cloudflare, No-IP), migration faisable en < 2h |
+
+---
+
+### Tableau de synthèse — Heatmap des risques
+
+```
+IMPACT
+  4 │ SEC-01  SEC-02  SEC-07  APP-03  RGP-01  ORG-01 │ INF-01  APP-03
+    │ (🟠8)  (🟠8)  (🟠8)  (🟠8)  (🟠8)  (🟠8)  │
+  3 │ SEC-03  SEC-05  SEC-06  INF-02  INF-03  APP-01  │ INF-05  INF-06
+    │ (🟠9)  (🟠6)  (🟠6)  (🟠6)  (🟠6)  (🟠9)  │ (🟡4)  (🟡4)
+  2 │ SEC-04  SEC-08  INF-07  ORG-02  ORG-03  ORG-04 │
+    │ (🟠6)  (🟠6)  (🟡4)  (🟠6)  (🟠6)  (🟠6)  │
+  1 │ SEC-10                                          │
+    │ (🟡3)                                           │
+    └──────────────────────────────────────────────────
+      1 (Rare)   2 (Possible)   3 (Probable)   4 (Quasi-certain)   PROBABILITÉ
+```
+
 
 ## CI/CD
 
