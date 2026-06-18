@@ -209,7 +209,7 @@ docker compose -f docker-compose.prod.yml up -d --no-deps
 
 > Le pipeline CI/CD effectue ces étapes automatiquement à chaque push sur `main`. Voir la section [CI/CD](#cicd).
 
-### Niveaux de criticités
+### Niveaux de criticité
 
 | Score | Niveau | Couleur | Traitement |
 |---|---|---|---|
