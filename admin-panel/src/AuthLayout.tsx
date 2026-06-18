@@ -35,7 +35,7 @@ export default function AuthLayout() {
       <Box className="w-xl flex flex-col items-center">
         <img src={logo1} style={{ width: "100px" }} />
         <img src={logo2} style={{ width: "300px" }} />
-        <h1>Bienvenuuuuue</h1>
+        <h1>Bienvenue</h1>
         <form
           className="flex flex-col gap-3 my-5 && w-80"
           onSubmit={(e) => {
@@ -54,7 +54,12 @@ export default function AuthLayout() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button text="Se connecter" icon={LogIn} type="submit" loading={loading} />
+          <Button
+            text="Se connecter"
+            icon={LogIn}
+            type="submit"
+            loading={loading}
+          />
         </form>
       </Box>
     </div>
