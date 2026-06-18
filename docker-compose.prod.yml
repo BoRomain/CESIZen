@@ -55,6 +55,15 @@ services:
       - internal
     restart: "no"
 
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    ports:
+      - "3001:3001"
+    volumes:
+      - uptime-kuma:/app/data
+    restart: always
+
   backapi:
     image: ${BACKAPI_IMAGE:-ghcr.io/boromain/cesizen-backapi:latest}
     container_name: cesizen-backapi-prod
@@ -106,6 +115,7 @@ services:
 volumes:
   postgres_data:
   letsencrypt_data:
+  uptime-kuma:
 
 networks:
   internal:
